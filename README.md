@@ -21,13 +21,15 @@
 [ PROOF ] .evidence               [ AUDIT ] Hash Chain
 [ FORM  ] JCS RFC 8785            [ SIGN  ] JWS RFC 7797
 [ PADES ] ETSI EN 319 142-1       [ PAGOS ] Mercado Pago
+[ KMS   ] Local + AWS             [ ANCHR ] Local + S3 Object Lock
 ```
 
 ![Estado](https://img.shields.io/badge/estado-pre--alpha-ffcc00?style=for-the-badge&labelColor=0a0d10)
 ![Núcleo](https://img.shields.io/badge/n%C3%BAcleo%20criptogr%C3%A1fico-100%25-00ff41?style=for-the-badge&labelColor=0a0d10)
 ![API](https://img.shields.io/badge/api-http-00ffff?style=for-the-badge&labelColor=0a0d10)
-![Tests](https://img.shields.io/badge/tests-unit%20%2B%20security-ff00ff?style=for-the-badge&labelColor=0a0d10)
-![Licencia](https://img.shields.io/badge/licencia-MIT%20%2B%20CC--BY--4.0-8b5cf6?style=for-the-badge&labelColor=0a0d10)
+![UI](https://img.shields.io/badge/ui-jinja2-ff00ff?style=for-the-badge&labelColor=0a0d10)
+![Tests](https://img.shields.io/badge/tests-unit%20%2B%20security-8b5cf6?style=for-the-badge&labelColor=0a0d10)
+![Licencia](https://img.shields.io/badge/licencia-MIT%20%2B%20CC--BY--4.0-10b981?style=for-the-badge&labelColor=0a0d10)
 
 ```text
 > WARNING: Evidence Integrity OS no sustituye a abogado, perito, notario
@@ -80,6 +82,9 @@ PAQUETE .evidence VERIFICABLE
 | 🌐 **Verificación** | Ofrece consulta pública mínima, solo con consentimiento explícito. |
 | 💳 **Pagos** | Gestiona órdenes, webhooks e idempotencia para la emisión. |
 | 🔌 **API HTTP** | Expone órdenes, evidencia, webhook, verificación pública y admin. |
+| 🖥️ **UI** | Interfaz server-side con verificación, checkout y detalle de orden. |
+| 🔑 **KMS** | LocalKMS para dev/tests, AWSKMS real para producción. |
+| ⚓ **Anclaje** | LocalFilesystemAnchor para dev, S3ObjectLockAnchor con retención COMPLIANCE. |
 
 ---
 
@@ -165,6 +170,8 @@ flowchart LR
     H --> I[Hash chain firmada]
     I --> J[Cierre periódico]
     J --> K[Anclaje externo]
+    K --> K1[LocalFilesystemAnchor]
+    K --> K2[S3ObjectLockAnchor]
     G --> L[Verificación independiente]
 ```
 
@@ -238,14 +245,16 @@ flowchart LR
 
 | Componente | Estado |
 |------------|--------|
-| Núcleo criptográfico | ✅ hashing, KMS, JCS, manifest, JWS, timestamp, hash_chain |
-| Log de auditoría | ✅ logger encadenado + anclaje externo + verificación |
+| Núcleo criptográfico | ✅ hashing, KMS (Local+AWS), JCS, manifest, JWS, timestamp, hash_chain |
+| Log de auditoría | ✅ logger encadenado + anclaje (Local+S3) + verificación |
 | Empaquetado `.evidence` | ✅ builder + verifier + CLI |
 | Procesador de pagos | ✅ webhook, validación, fulfillment, worker, recovery |
 | API HTTP | ✅ FastAPI: orders, evidence, webhook, public, admin |
+| UI de aplicación | ✅ Templates Jinja2 con tema claro/oscuro |
 | Tests de seguridad | ✅ algorithm confusion, dictionary attack, corruption, schema |
+| Tests de AWS | ✅ botocore stubber para AWSKMS y S3ObjectLockAnchor |
 | Migraciones SQL | ✅ 5/5 aprobadas |
-| UI | ✅ Landing estática con tema claro/oscuro |
+| Landing pública | ✅ HTML estático con tema claro/oscuro |
 | Revisión legal México | ⚠️ Bloqueante externo |
 
 ### Barra de progreso
@@ -256,9 +265,11 @@ flowchart LR
   Empaquetado .evidence ████████████████████████████████████ 100%
   Procesador de pagos   ████████████████████████████████████ 100%
   API HTTP              ████████████████████████████████████ 100%
+  UI de aplicación      ████████████████████████████████████ 100%
+  KMS (Local + AWS)     ████████████████████████████████████ 100%
+  Anclaje (Local + S3)  ████████████████████████████████████ 100%
   Tests de seguridad    ████████████████████████████████████ 100%
   Migraciones SQL       ████████████████████████████████████ 100%
-  UI (landing)          ████████████████████████████████████ 100%
   Revisión legal MX     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%
 ```
 
@@ -320,6 +331,28 @@ Salida esperada:
    last_event_hash: 8f3a...
 ```
 
+### UI de aplicación
+
+Con el servidor corriendo:
+
+```bash
+$ uvicorn src.api.main:app --reload --port 8000
+```
+
+Rutas disponibles:
+
+| Ruta | Descripción |
+|------|-------------|
+| `/` | Verificación de paquetes `.evidence` |
+| `/verify` | Igual que `/` |
+| `/orders/{id}` | Detalle de orden con estado |
+| `/checkout/success` | Retorno de Mercado Pago tras pago |
+| `/checkout/pending` | Retorno tras pago pendiente |
+| `/checkout/failure` | Retorno tras pago fallido |
+| `/docs` | Swagger UI (FastAPI auto-generado) |
+| `/health` | Health check |
+| `/static/*` | CSS y JS de la app |
+
 ### Demo rápida en Windows
 
 ```cmd
@@ -341,6 +374,7 @@ Si detectas una vulnerabilidad, **no publiques detalles sensibles en un issue p�
   ✔ Cifrado en tránsito                ✔ Registro de accesos y operaciones
   ✔ Políticas de retención             ✔ Revisión con especialistas LFPDPPP
   ✔ Separación de hashes y datos       ✔ Enlaces públicos revocables
+  ✔ KMS sin exportación de claves      ✔ Anclaje con retención COMPLIANCE
 ```
 
 ### Comandos de verificación segura
@@ -378,13 +412,16 @@ make sbom
   [x]  Finalizar migraciones SQL versionadas (5/5 aprobadas)
   [x]  Implementar procesador de pagos (webhook, validación, fulfillment, worker, recovery)
   [x]  Implementar API HTTP pública
+  [x]  Implementar UI de aplicación con verificación y órdenes
   [x]  Añadir pruebas de seguridad (algorithm confusion, dictionary attack, corruption)
+  [x]  Implementar AWSKMS real
+  [x]  Implementar S3ObjectLockAnchor real
   [ ]  Añadir pruebas de integración contra PostgreSQL real
   [ ]  Añadir pruebas de concurrencia y recovery end-to-end
   [ ]  Pruebas cruzadas Python ↔ Rust/Node
+  [ ]  Implementar AzureKMS real
+  [ ]  Implementar AzureImmutableBlobAnchor real
   [ ]  Integrar TSA y proveedor de firma con credenciales reales
-  [ ]  Implementar AWSKMS real
-  [ ]  Implementar S3ObjectLockAnchor real
   [ ]  Completar revisión legal, de privacidad y seguridad externa
 ```
 

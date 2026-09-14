@@ -1,66 +1,109 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Evidence Integrity OS — Integridad y trazabilidad de evidencia digital</title>
-<meta name="description" content="Plataforma técnica de integridad y trazabilidad de evidencia digital para México y Latinoamérica. Sellado RFC 3161, hash chain, paquetes verificables.">
+<meta name="description" content="Plataforma técnica de integridad y trazabilidad de evidencia digital para México y Latinoamérica.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ============================================================
-     EVIDENCE INTEGRITY OS
-     Tema: profesional con identidad forense/cripto
+     TEMAS
      ============================================================ */
 
-  :root {
+  :root, [data-theme="dark"] {
     --bg: #0a0d10;
     --bg-elevated: #11151a;
     --bg-card: #141a20;
+    --bg-terminal: #0d1116;
     --border: #1f2933;
     --border-hover: #2d3a47;
 
     --green: #10b981;
     --green-dim: #059669;
     --green-bg: #052e26;
+    --green-soft: rgba(16, 185, 129, 0.1);
 
     --cyan: #06b6d4;
-    --cyan-dim: #0891b2;
+    --cyan-soft: rgba(6, 182, 212, 0.05);
 
     --amber: #f59e0b;
+    --amber-soft: rgba(245, 158, 11, 0.08);
     --red: #ef4444;
 
     --text: #e5e7eb;
     --text-muted: #9ca3af;
     --text-dim: #6b7280;
 
-    --mono: 'JetBrains Mono', 'Courier New', monospace;
-    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --canvas-node: rgba(16, 185, 129, 0.4);
+    --canvas-line: 16, 185, 129;
+
+    --shadow-card: none;
+    --shadow-primary: 0 8px 24px rgba(16, 185, 129, 0.25);
   }
+
+  [data-theme="light"] {
+    --bg: #f8fafc;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
+    --bg-terminal: #0f172a;
+    --border: #e2e8f0;
+    --border-hover: #cbd5e1;
+
+    --green: #059669;
+    --green-dim: #047857;
+    --green-bg: #ecfdf5;
+    --green-soft: rgba(5, 150, 105, 0.08);
+
+    --cyan: #0891b2;
+    --cyan-soft: rgba(8, 145, 178, 0.05);
+
+    --amber: #d97706;
+    --amber-soft: rgba(217, 119, 6, 0.08);
+    --red: #dc2626;
+
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #94a3b8;
+
+    --canvas-node: rgba(5, 150, 105, 0.35);
+    --canvas-line: 5, 150, 105;
+
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-primary: 0 8px 24px rgba(5, 150, 105, 0.25);
+  }
+
+  /* ============================================================
+     BASE
+     ============================================================ */
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html { scroll-behavior: smooth; }
 
   body {
-    font-family: var(--sans);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.65;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* ---- Fondo: red de nodos sutil ---- */
   canvas#bg {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 0;
-    opacity: 0.4;
+    opacity: 0.5;
     pointer-events: none;
+    transition: opacity 0.3s ease;
   }
+
+  [data-theme="light"] canvas#bg { opacity: 0.35; }
 
   .wrap {
     position: relative;
@@ -85,7 +128,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 15px;
     font-weight: 600;
     letter-spacing: -0.3px;
@@ -115,6 +158,7 @@
   nav {
     display: flex;
     gap: 4px;
+    align-items: center;
     flex-wrap: wrap;
   }
 
@@ -133,6 +177,44 @@
     background: var(--bg-elevated);
   }
 
+  /* ---- Theme toggle ---- */
+  .theme-toggle {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    transition: all 0.15s;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .theme-toggle svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  [data-theme="dark"] .icon-sun { display: block; }
+  [data-theme="dark"] .icon-moon { display: none; }
+  [data-theme="light"] .icon-sun { display: none; }
+  [data-theme="light"] .icon-moon { display: block; }
+
   /* ---- Hero ---- */
   .hero {
     padding: 80px 0 60px;
@@ -148,7 +230,7 @@
     border: 1px solid var(--green-dim);
     border-radius: 100px;
     font-size: 12px;
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     color: var(--green);
     margin-bottom: 24px;
   }
@@ -192,7 +274,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px 24px;
-    font-family: var(--sans);
+    font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 600;
     text-decoration: none;
@@ -203,20 +285,24 @@
 
   .cta.primary {
     background: var(--green);
-    color: #04110c;
+    color: #ffffff;
   }
+
+  [data-theme="dark"] .cta.primary { color: #04110c; }
 
   .cta.primary:hover {
     background: #14c98d;
     transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    box-shadow: var(--shadow-primary);
   }
+
+  [data-theme="light"] .cta.primary:hover { background: #047857; }
 
   .cta.secondary {
     background: var(--bg-elevated);
     color: var(--text);
     border-color: var(--border);
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
   }
 
@@ -225,17 +311,18 @@
     background: var(--bg-card);
   }
 
-  /* ---- Terminal snippet ---- */
+  /* ---- Terminal (siempre oscuro, es un terminal) ---- */
   .terminal {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    background: #0d1116;
+    border: 1px solid #1f2933;
     border-radius: 10px;
     padding: 16px 20px;
     margin: 48px 0 0;
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     max-width: 640px;
     overflow-x: auto;
+    box-shadow: var(--shadow-card);
   }
 
   .terminal-header {
@@ -248,17 +335,18 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--border-hover);
+    background: #2d3a47;
   }
 
   .terminal-line {
-    color: var(--text-muted);
+    color: #9ca3af;
     padding: 2px 0;
+    white-space: nowrap;
   }
 
-  .terminal-prompt { color: var(--green); }
-  .terminal-cmd { color: var(--text); }
-  .terminal-out { color: var(--cyan); }
+  .terminal-prompt { color: #10b981; }
+  .terminal-cmd { color: #e5e7eb; }
+  .terminal-out { color: #06b6d4; }
 
   /* ---- Status strip ---- */
   .status-strip {
@@ -270,7 +358,7 @@
     border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
     font-size: 13px;
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     color: var(--text-muted);
   }
 
@@ -298,7 +386,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     color: var(--text-dim);
     text-transform: uppercase;
@@ -327,7 +415,7 @@
     margin-bottom: 40px;
   }
 
-  /* ---- Grid de módulos ---- */
+  /* ---- Grid módulos ---- */
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -342,6 +430,7 @@
     position: relative;
     transition: all 0.2s;
     overflow: hidden;
+    box-shadow: var(--shadow-card);
   }
 
   .card::before {
@@ -357,7 +446,6 @@
 
   .card:hover {
     border-color: var(--border-hover);
-    background: #161d24;
     transform: translateY(-2px);
   }
 
@@ -373,7 +461,7 @@
     align-items: center;
     justify-content: center;
     color: var(--green);
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
     font-size: 16px;
     margin-bottom: 20px;
@@ -394,9 +482,9 @@
   }
 
   .card code {
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
-    background: rgba(16, 185, 129, 0.1);
+    background: var(--green-soft);
     color: var(--green);
     padding: 2px 6px;
     border-radius: 4px;
@@ -418,6 +506,7 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 28px;
+    box-shadow: var(--shadow-card);
   }
 
   .limit-box.yes { border-top: 3px solid var(--green); }
@@ -480,6 +569,7 @@
     padding: 32px;
     position: relative;
     transition: all 0.2s;
+    box-shadow: var(--shadow-card);
   }
 
   .price-card:hover {
@@ -489,7 +579,7 @@
 
   .price-card.featured {
     border-color: var(--green);
-    box-shadow: 0 0 0 1px var(--green), 0 12px 32px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 0 1px var(--green), var(--shadow-primary);
   }
 
   .price-card.featured::before {
@@ -498,7 +588,7 @@
     top: -10px;
     left: 32px;
     background: var(--green);
-    color: #04110c;
+    color: #ffffff;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -506,8 +596,10 @@
     border-radius: 4px;
   }
 
+  [data-theme="dark"] .price-card.featured::before { color: #04110c; }
+
   .price-card h3 {
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -546,8 +638,8 @@
 
   /* ---- Avisos ---- */
   .alert {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: var(--amber-soft);
+    border: 1px solid rgba(245, 158, 11, 0.2);
     border-left: 3px solid var(--amber);
     border-radius: 8px;
     padding: 20px 24px;
@@ -560,7 +652,7 @@
   .alert strong { color: var(--amber); }
 
   .info {
-    background: rgba(6, 182, 212, 0.05);
+    background: var(--cyan-soft);
     border: 1px solid rgba(6, 182, 212, 0.2);
     border-left: 3px solid var(--cyan);
     border-radius: 8px;
@@ -572,6 +664,12 @@
   }
 
   .info strong { color: var(--cyan); }
+
+  .info code {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--cyan);
+    font-size: 13px;
+  }
 
   /* ---- Footer ---- */
   footer {
@@ -591,31 +689,33 @@
   }
 
   .footer-mono {
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
   }
 
   footer a {
     color: var(--text-muted);
     text-decoration: none;
-    font-family: var(--mono);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     transition: color 0.15s;
   }
 
   footer a:hover { color: var(--green); }
 
-  /* ---- Accesibilidad ---- */
-  @media (prefers-reduced-motion: reduce) {
-    canvas#bg { display: none; }
-    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-  }
-
+  /* ---- Responsive ---- */
   @media (max-width: 700px) {
     header { flex-direction: column; align-items: flex-start; }
     .hero { padding: 48px 0 32px; }
     .status-strip { gap: 16px; font-size: 12px; }
     .terminal { font-size: 12px; padding: 14px 16px; }
+    .theme-toggle { margin-left: 0; }
+  }
+
+  /* ---- Accesibilidad ---- */
+  @media (prefers-reduced-motion: reduce) {
+    canvas#bg { display: none; }
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
 </style>
 </head>
@@ -625,7 +725,6 @@
 
 <div class="wrap">
 
-  <!-- HEADER -->
   <header>
     <div class="logo">
       <div class="logo-mark">E</div>
@@ -639,10 +738,13 @@
       <a href="#limites">Límites</a>
       <a href="#precios">Precios</a>
       <a href="#docs">Documentación</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </nav>
   </header>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="badge">en desarrollo · núcleo criptográfico parcial</div>
 
@@ -678,7 +780,6 @@
     </div>
   </section>
 
-  <!-- STATUS STRIP -->
   <div class="status-strip">
     <div class="status-item"><span class="status-dot ok"></span> build passing</div>
     <div class="status-item"><span class="status-dot warn"></span> migraciones 2/5</div>
@@ -686,7 +787,6 @@
     <div class="status-item"><span class="status-dot off"></span> demo pública desactivada</div>
   </div>
 
-  <!-- MÓDULOS -->
   <section id="modulos">
     <div class="section-label">01 — módulos</div>
     <h2 class="section-title">Artefactos criptográficos verificables</h2>
@@ -726,12 +826,10 @@
     </div>
   </section>
 
-  <!-- INFO -->
   <div class="info">
     <strong>Alcance del sistema.</strong> Evidence Integrity OS genera artefactos criptográficos verificables por terceros. No certifica autoría, no emite constancias NOM-151, no sustituye a PSC, FEA, notario, abogado ni perito. La admisibilidad judicial depende del contexto procesal y de la autoridad competente.
   </div>
 
-  <!-- LÍMITES -->
   <section id="limites">
     <div class="section-label">02 — límites</div>
     <h2 class="section-title">Qué hace y qué no hace</h2>
@@ -759,11 +857,10 @@
     </div>
 
     <div class="info" style="margin-top: 24px;">
-      <strong>Sobre el archivo original.</strong> El MVP no almacena el archivo original. Verificar la estructura, firmas y sellos del paquete no requiere el original; comparar un archivo específico contra el paquete sí requiere recalcular su <code style="font-family: var(--mono); color: var(--cyan);">content_hash</code>.
+      <strong>Sobre el archivo original.</strong> El MVP no almacena el archivo original. Verificar la estructura, firmas y sellos del paquete no requiere el original; comparar un archivo específico contra el paquete sí requiere recalcular su <code>content_hash</code>.
     </div>
   </section>
 
-  <!-- PRECIOS -->
   <section id="precios">
     <div class="section-label">03 — precios</div>
     <h2 class="section-title">Planes de validación</h2>
@@ -796,12 +893,10 @@
     </div>
   </section>
 
-  <!-- AVISO -->
   <div class="alert">
     <strong>Aviso importante.</strong> Esta plataforma no sustituye a abogado, perito, notario ni Prestador de Servicios de Certificación (PSC). Los sellos RFC 3161 son emitidos por TSA externa. Las constancias NOM-151 solo pueden ser emitidas por un PSC acreditado ante la Secretaría de Economía. La firma PAdES del reporte técnico no equivale a una Firma Electrónica Avanzada (FEA) bajo el régimen mexicano. El sistema no garantiza admisibilidad judicial.
   </div>
 
-  <!-- DOCS -->
   <section id="docs">
     <div class="section-label">04 — documentación</div>
     <h2 class="section-title">Referencias técnicas</h2>
@@ -810,7 +905,6 @@
     </p>
   </section>
 
-  <!-- FOOTER -->
   <footer>
     <div class="footer-content">
       <div class="footer-mono">EVIDENCE_INTEGRITY_OS · 2026</div>
@@ -823,11 +917,43 @@
 
 <script>
 // ============================================================
-// Fondo: red de nodos sutil
+// Tema claro/oscuro
+// ============================================================
+(function initTheme() {
+  const saved = localStorage.getItem('theme');
+  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  const initial = saved || (prefersLight ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', initial);
+})();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateCanvasColors();
+});
+
+// ============================================================
+// Fondo: red de nodos
 // ============================================================
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
 let W, H, particles = [];
+let canvasNodeColor = 'rgba(16, 185, 129, 0.4)';
+let canvasLineRgb = '16, 185, 129';
+
+function updateCanvasColors() {
+  const theme = document.documentElement.getAttribute('data-theme');
+  if (theme === 'light') {
+    canvasNodeColor = 'rgba(5, 150, 105, 0.35)';
+    canvasLineRgb = '5, 150, 105';
+  } else {
+    canvasNodeColor = 'rgba(16, 185, 129, 0.4)';
+    canvasLineRgb = '16, 185, 129';
+  }
+}
+
 const NODE_COUNT = 40;
 const MAX_DIST = 140;
 
@@ -852,7 +978,6 @@ function init() {
 function draw() {
   ctx.clearRect(0, 0, W, H);
 
-  // Líneas
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
       const dx = particles[i].x - particles[j].x;
@@ -860,7 +985,7 @@ function draw() {
       const d = Math.sqrt(dx * dx + dy * dy);
       if (d < MAX_DIST) {
         const alpha = (1 - d / MAX_DIST) * 0.15;
-        ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
+        ctx.strokeStyle = `rgba(${canvasLineRgb}, ${alpha})`;
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(particles[i].x, particles[i].y);
@@ -870,13 +995,12 @@ function draw() {
     }
   }
 
-  // Nodos
   particles.forEach(p => {
     p.x += p.vx;
     p.y += p.vy;
     if (p.x < 0 || p.x > W) p.vx *= -1;
     if (p.y < 0 || p.y > H) p.vy *= -1;
-    ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
+    ctx.fillStyle = canvasNodeColor;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
     ctx.fill();
@@ -886,6 +1010,7 @@ function draw() {
 }
 
 window.addEventListener('resize', resize);
+updateCanvasColors();
 resize();
 draw();
 </script>

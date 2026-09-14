@@ -1,21 +1,36 @@
 """Construccion y validacion del manifiesto v1.
 
-El manifiesto es el payload canonico firmado. No contiene firma, token
-de tiempo ni anclaje: esas pruebas viven fuera del alcance firmado.
+Valida contra schemas/manifest-v1.schema.json con jsonschema.
+Adicionalmente aplica reglas internas (chain_position coherente, etc.).
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import json
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from pathlib import Path
+from typing import Any, Final
+
+import jsonschema
 
 from .errors import ManifestError, ManifestValidationError
-from .hashing import CONTENT_HASH_ALGORITHM, COMMITMENT_ALGORITHM
+from .hashing import COMMITMENT_ALGORITHM, CONTENT_HASH_ALGORITHM
 from .jcs import canonicalize
 
-MANIFEST_VERSION: str = "1.0"
-MANIFEST_SCHEMA_URN: str = "urn:evidence-integrity:manifest:v1"
+MANIFEST_VERSION: Final[str] = "1.0"
+MANIFEST_SCHEMA_URN: Final[str] = "urn:evidence-integrity:manifest:v1"
+
+_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "manifest-v1.schema.json"
+_SCHEMA_CACHE: dict[str, Any] | None = None
+
+
+def _schema() -> dict[str, Any]:
+    global _SCHEMA_CACHE
+    if _SCHEMA_CACHE is None:
+        with _SCHEMA_PATH.open(encoding="utf-8") as f:
+            _SCHEMA_CACHE = json.load(f)
+    return _SCHEMA_CACHE
 
 
 @dataclass(frozen=True)
@@ -48,7 +63,6 @@ class Manifest:
     original_included: bool = False
 
     def to_payload(self) -> dict[str, Any]:
-        """Convierte el manifiesto al dict canonico."""
         return {
             "$schema": MANIFEST_SCHEMA_URN,
             "manifest_version": MANIFEST_VERSION,
@@ -74,49 +88,34 @@ class Manifest:
         }
 
     def canonical_bytes(self) -> bytes:
-        """Devuelve los bytes canonicos RFC 8785 del manifiesto."""
         return canonicalize(self.to_payload())
 
     def validate(self) -> None:
-        """Valida el manifiesto contra el esquema y reglas internas."""
-        _validate_manifest(self)
+        payload = self.to_payload()
+        try:
+            jsonschema.validate(payload, _schema())
+        except jsonschema.ValidationError as exc:
+            raise ManifestValidationError(
+                f"Esquema: {exc.message} en {list(exc.path)}"
+            ) from exc
+        _validate_internal_rules(self)
 
 
 def _iso8601(dt: datetime) -> str:
     if dt.tzinfo is None:
         raise ManifestError("created_at debe tener zona horaria")
-    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.") + \
-        f"{dt.microsecond // 1000:03d}Z"
+    utc = dt.astimezone(timezone.utc)
+    return utc.strftime("%Y-%m-%dT%H:%M:%S.") + f"{utc.microsecond // 1000:03d}Z"
 
 
-def _validate_manifest(m: Manifest) -> None:
-    if not m.evidence_id or not m.evidence_id.startswith("ev_"):
-        raise ManifestValidationError(
-            "evidence_id debe comenzar con 'ev_'"
-        )
-    if len(m.content.content_hash) != 64:
-        raise ManifestValidationError(
-            "content_hash debe ser hex de 64 caracteres (SHA-256)"
-        )
-    if len(m.commitment.private_commitment) != 64:
-        raise ManifestValidationError(
-            "private_commitment debe ser hex de 64 caracteres (HMAC-SHA256)"
-        )
-    if not m.content.size_bytes.isdigit():
-        raise ManifestValidationError(
-            "size_bytes debe ser string numerico"
-        )
-    if not m.chain.chain_position.isdigit():
-        raise ManifestValidationError(
-            "chain_position debe ser string numerico"
-        )
-    if m.chain.chain_position != "0":
-        prev = m.chain.previous_manifest_hash
-        if len(prev) != 64:
+def _validate_internal_rules(m: Manifest) -> None:
+    if m.chain.chain_position == "0":
+        if m.chain.previous_manifest_hash:
+            raise ManifestValidationError(
+                "chain_position=0 no debe declarar previous_manifest_hash"
+            )
+    else:
+        if len(m.chain.previous_manifest_hash) != 64:
             raise ManifestValidationError(
                 "previous_manifest_hash debe ser hex de 64 caracteres"
             )
-    elif m.chain.previous_manifest_hash:
-        raise ManifestValidationError(
-            "chain_position=0 no debe declarar previous_manifest_hash"
-        )

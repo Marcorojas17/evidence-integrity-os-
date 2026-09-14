@@ -12,9 +12,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - 🗄️ Migración `0004_init_fulfillment_attempts.sql` — tracking de intentos por fulfillment
 - 🗄️ Migración `0005_indexes_and_constraints.sql` — triggers de `updated_at` e índices
 - 🔒 Núcleo criptográfico: hashing SHA-256, KMS, JCS RFC 8785, manifest v1, JWS RFC 7797, timestamp RFC 3161, hash chain
+- 🔒 Log de auditoría encadenado con firma por evento y cierres periódicos
+- 🔒 Anclaje externo: `LocalFilesystemAnchor`, stubs de S3 Object Lock y Azure Immutable Blob
+- 🔒 Verificación end-to-end del log: cadena, firmas, cierres y anclajes
 - 📦 Empaquetado `.evidence`: builder, verifier y CLI
 - 💳 Procesador de pagos: firma de webhook, validación de campos, fulfillment con lease, worker de dos fases, recovery, cliente HTTP de Mercado Pago
 - ✅ Tests unitarios de hashing, JCS, manifest, JWS, timestamp, hash chain, builder, verifier, CLI, firma, estados, validación y webhook
+- ✅ Tests unitarios de log encadenado y verificación de integridad
 - 📝 Documentación técnica y legal: `README.md`, `DISCLAIMER.md`, `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/DATA_PROTECTION.md`, `docs/RETENTION_POLICY.md`, `docs/explanation/legal-mx.md`, `docs/explanation/non-goals.md`, `docs/explanation/threat-model.md`, `docs/reference/algorithm-registry.md`, `docs/tutorials/01-uso-manual.md`
 - 📝 ADR 0003 aprobada: `payment_fulfillments`
 - 🌐 Landing page con tema claro/oscuro y `prefers-reduced-motion`
@@ -26,6 +30,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - 🌐 API HTTP pública (`/orders`, `/evidence`, `/webhook`, `/verify/{id}`)
 - ✅ Tests de integración contra PostgreSQL real
 - ✅ Pruebas de concurrencia y recovery end-to-end
+- ✅ Tests de seguridad: algorithm confusion, dictionary attack, corruption, manifest schema
 - 🧪 Pruebas cruzadas Python ↔ Rust/Node
 - 📝 Documentación legal revisada por abogado
 - 🔐 Integración con TSA cualificada y proveedor de firma con credenciales reales

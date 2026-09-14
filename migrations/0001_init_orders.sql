@@ -1,8 +1,6 @@
--- 🗄️ 0001_init_orders.sql
--- ─────────────────────────────────────────────────────────────
--- Tabla base de órdenes internas. Fuente de verdad del negocio.
+-- 0001_init_orders.sql
+-- Tabla base de ordenes internas. Fuente de verdad del negocio.
 -- El external_reference de Mercado Pago apunta a order_id.
--- ─────────────────────────────────────────────────────────────
 
 BEGIN;
 

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Orden {{ order.order_id }} — Evidence Integrity OS{% endblock %}
+
+{% block content %}
+<h1>Orden {{ order.order_id }}</h1>
+
+<div class="card">
+  <dl style="display: grid; grid-template-columns: 160px 1fr; gap: 12px; font-family: var(--mono); font-size: 13px;">
+    <dt style="color: var(--text-dim);">order_id</dt>
+    <dd><code>{{ order.order_id }}</code></dd>
+
+    <dt style="color: var(--text-dim);">estado</dt>
+    <dd><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></dd>
+
+    <dt style="color: var(--text-dim);">producto</dt>
+    <dd>{{ order.product_code }}</dd>
+
+    <dt style="color: var(--text-dim);">monto</dt>
+    <dd>{{ order.amount }} {{ order.currency }}</dd>
+
+    <dt style="color: var(--text-dim);">creado</dt>
+    <dd>{{ order.created_at }}</dd>
+
+    <dt style="color: var(--text-dim);">actualizado</dt>
+    <dd>{{ order.updated_at }}</dd>
+
+    {% if order.evidence_id %}
+    <dt style="color: var(--text-dim);">evidence_id</dt>
+    <dd><code>{{ order.evidence_id }}</code></dd>
+    {% endif %}
+  </dl>
+</div>
+
+{% if order.evidence_id %}
+<div class="alert">
+  Tu paquete <code>.evidence</code> está listo.
+  <a href="/evidence/{{ order.evidence_id }}/download">Descargar paquete</a>
+</div>
+{% elif order.status == 'processing' %}
+<div class="alert">
+  Estamos generando tu paquete <code>.evidence</code>. Esta página se puede
+  recargar para actualizar el estado.
+</div>
+{% elif order.status == 'pending' %}
+<div class="alert warning">
+  Aún no hemos confirmado el pago. Si ya pagaste, espera unos minutos y
+  recarga la página.
+</div>
+{% elif order.status in ['failed', 'failed_requires_manual'] %}
+<div class="alert error">
+  Hubo un problema al generar tu paquete. Contacta al soporte con tu
+  <code>order_id</code>.
+</div>
+{% endif %}
+
+<a href="/" class="btn btn-secondary">Volver al inicio</a>
+
+{% endblock %}

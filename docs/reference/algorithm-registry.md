@@ -120,3 +120,46 @@ El verificador **debe**:
 | ❌ Prohibido | No se acepta en ningún caso | Rechazar explícitamente |
 
 ### Transiciones
+Planificado → Aceptado (release mayor)
+Aceptado → Deprecado (release mayor + ADR + 12 meses de gracia)
+Deprecado → Prohibido (release mayor + ADR)
+
+---
+
+## 5. Rotación de claves
+
+| Aspecto | Regla |
+|---------|-------|
+| Rotación programada | Cada 90 días |
+| Almacenamiento | KMS (AWS KMS, Azure KV, o HashiCorp Vault) |
+| Versionado | Cada firma incluye `kid` (RFC 7638 thumbprint) |
+| Claves históricas | Conservadas en KMS para verificación de documentos antiguos |
+| Revocación | Solo la CA emisora puede revocar un certificado. El sistema consulta estado, no revoca |
+| Revocación de evidencia | El sistema marca la evidencia como revocada en `payment_fulfillments.status`, no el certificado de la CA |
+
+---
+
+## 6. Revisión periódica
+
+Este registro se revisa:
+
+- En cada release mayor.
+- Cuando se publique un nuevo RFC o actualización de ETSI.
+- Cuando se detecte una vulnerabilidad en un algoritmo aceptado.
+- Cada 12 meses como mínimo.
+
+---
+
+## 7. Referencias
+
+- RFC 3161 — Time-Stamp Protocol
+- RFC 7515 — JSON Web Signature
+- RFC 7518 — JSON Web Algorithms
+- RFC 7638 — JWK Thumbprint
+- RFC 7797 — JWS Unencoded Payload Option
+- RFC 8785 — JSON Canonicalization Scheme
+- ETSI EN 319 122 — CAdES
+- ETSI EN 319 142-1 — PAdES
+- NIST SP 800-57 — Recommendation for Key Management
+- NIST SP 800-131A — Transitioning the Use of Cryptographic Algorithms
+- BLAKE3 specification

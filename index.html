@@ -3,218 +3,769 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Evidence Integrity OS — Integridad y trazabilidad de evidencia digital</title>
-<meta name="description" content="Plataforma técnica de integridad y trazabilidad de evidencia digital para México y Latinoamérica. Sellado RFC 3161, hash chain, paquetes verificables.">
+<title>EVIDENCE_INTEGRITY_OS :: v0.0.1</title>
+<meta name="description" content="Plataforma técnica de integridad y trazabilidad de evidencia digital para México y Latinoamérica.">
 <style>
+  /* ============================================================
+     EVIDENCE INTEGRITY OS - HACKER THEME
+     Paleta: matrix green + cyan + magenta sobre negro
+     ============================================================ */
+
+  :root {
+    --bg: #000000;
+    --bg-panel: #0a0e0a;
+    --bg-panel-2: #0d1410;
+    --green: #00ff41;
+    --green-dim: #00cc33;
+    --green-dark: #003300;
+    --cyan: #00ffff;
+    --cyan-dim: #00cccc;
+    --magenta: #ff00ff;
+    --red: #ff003c;
+    --yellow: #ffcc00;
+    --text: #b8ffb8;
+    --text-dim: #5a8a5a;
+    --border: #00ff4133;
+    --border-bright: #00ff41;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0a0a0f;
-    color: #e8e8f0;
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', 'Consolas', monospace;
     line-height: 1.6;
     overflow-x: hidden;
+    scroll-behavior: smooth;
   }
-  canvas#bg {
+
+  /* ---- Fondo matrix ---- */
+  canvas#matrix {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 0;
-    opacity: 0.35;
+    opacity: 0.15;
   }
-  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-  header { padding: 40px 0; display: flex; justify-content: space-between; align-items: center; }
-  .logo { font-weight: 700; font-size: 18px; letter-spacing: 0.5px; }
-  .logo span { color: #ff3b5c; }
-  nav a { color: #a0a0b0; text-decoration: none; margin-left: 24px; font-size: 14px; }
-  nav a:hover { color: #fff; }
-  .hero { padding: 100px 0 80px; }
-  .hero h1 { font-size: 48px; line-height: 1.1; font-weight: 800; margin-bottom: 24px; }
-  .hero h1 span { color: #ff3b5c; }
-  .hero p { font-size: 20px; color: #a0a0b0; max-width: 680px; margin-bottom: 40px; }
-  .cta { display: inline-block; background: #ff3b5c; color: #fff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.2s; }
-  .cta:hover { transform: translateY(-2px); }
-  .cta.secondary { background: transparent; border: 1px solid #2a2a35; color: #e8e8f0; margin-left: 12px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 60px 0; }
-  .card { background: #12121a; border: 1px solid #1e1e28; border-radius: 12px; padding: 28px; }
-  .card h3 { font-size: 18px; margin-bottom: 12px; }
-  .card p { font-size: 14px; color: #888898; }
-  .disclaimer { background: #1a1218; border-left: 3px solid #ff3b5c; padding: 20px; border-radius: 8px; margin: 40px 0; font-size: 14px; color: #c0c0d0; }
-  .notice { background: #121218; border-left: 3px solid #8b5cf6; padding: 16px 20px; border-radius: 8px; margin: 24px 0; font-size: 13px; color: #a0a0b0; }
-  footer { padding: 60px 0 40px; border-top: 1px solid #1e1e28; margin-top: 80px; font-size: 13px; color: #666; text-align: center; }
-  footer a { color: #888898; text-decoration: none; }
-  footer a:hover { color: #fff; }
-  @media (max-width: 600px) {
-    .hero h1 { font-size: 32px; }
-    .hero p { font-size: 16px; }
-    nav a { margin-left: 12px; font-size: 13px; }
+
+  /* ---- Scanlines overlay ---- */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 65, 0.03) 0px,
+      rgba(0, 255, 65, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scan 8s linear infinite;
+  }
+
+  @keyframes scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---- Header terminal ---- */
+  header {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--green);
+    text-shadow: 0 0 10px var(--green), 0 0 20px var(--green-dim);
+  }
+
+  .logo::before { content: "┌─["; color: var(--cyan-dim); }
+  .logo::after  { content: "]─┐"; color: var(--cyan-dim); }
+
+  nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    transition: all 0.15s;
+  }
+
+  nav a:hover {
+    background: var(--green-dark);
+    border-color: var(--green);
+    color: var(--green);
+    box-shadow: 0 0 12px var(--green-dim);
+  }
+
+  nav a::before { content: "$ "; color: var(--magenta); }
+
+  /* ---- Hero terminal ---- */
+  .hero {
+    padding: 80px 0 60px;
+    position: relative;
+  }
+
+  .terminal-box {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .terminal-box::before {
+    content: "● ● ●";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    padding: 6px 12px;
+    background: var(--bg-panel-2);
+    color: var(--red);
+    font-size: 10px;
+    letter-spacing: 4px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terminal-line {
+    color: var(--text-dim);
+    font-size: 13px;
+    padding-top: 16px;
+  }
+
+  .terminal-line::before {
+    content: "user@evidence:~$ ";
+    color: var(--green);
+  }
+
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 24px;
+    color: var(--green);
+    text-shadow: 0 0 20px var(--green-dim), 0 0 40px var(--green-dark);
+    letter-spacing: -0.5px;
+  }
+
+  .hero h1 .glitch {
+    color: var(--cyan);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero h1 .glitch::before,
+  .hero h1 .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .hero h1 .glitch::before {
+    color: var(--magenta);
+    animation: glitch-1 2s infinite linear alternate-reverse;
+  }
+
+  .hero h1 .glitch::after {
+    color: var(--cyan);
+    animation: glitch-2 3s infinite linear alternate-reverse;
+  }
+
+  @keyframes glitch-1 {
+    0%, 90%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+    92% { clip-path: inset(20% 0 40% 0); transform: translate(-2px, 0); }
+    94% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
+    96% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 0); }
+  }
+
+  @keyframes glitch-2 {
+    0%, 85%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+    87% { clip-path: inset(40% 0 20% 0); transform: translate(1px, 0); }
+    89% { clip-path: inset(20% 0 60% 0); transform: translate(-1px, 0); }
+    91% { clip-path: inset(70% 0 5% 0); transform: translate(2px, 0); }
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--text);
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  .hero p::before { content: "> "; color: var(--green); }
+
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .cta {
+    display: inline-block;
+    background: transparent;
+    color: var(--green);
+    padding: 14px 28px;
+    border: 1px solid var(--green);
+    text-decoration: none;
+    font-weight: 700;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta::before { content: "[ "; color: var(--cyan); }
+  .cta::after  { content: " ]"; color: var(--cyan); }
+
+  .cta:hover {
+    background: var(--green);
+    color: var(--bg);
+    box-shadow: 0 0 24px var(--green);
+  }
+
+  .cta.primary {
+    background: var(--green);
+    color: var(--bg);
+    box-shadow: 0 0 16px var(--green-dim);
+  }
+
+  .cta.primary:hover {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 32px var(--cyan);
+  }
+
+  /* ---- Banner de estado tipo terminal ---- */
+  .status-bar {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 12px 20px;
+    margin: 40px 0;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .status-bar .stat { display: flex; gap: 8px; align-items: center; }
+  .status-bar .stat::before {
+    content: "●";
+    color: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  .status-bar .stat.warn::before { color: var(--yellow); }
+  .status-bar .stat.danger::before { color: var(--red); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ---- Secciones ---- */
+  section { padding: 48px 0; }
+
+  .section-header {
+    font-size: 14px;
+    color: var(--green);
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .section-header::before { content: "// "; color: var(--magenta); }
+
+  /* ---- Grid de tarjetas ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    transition: all 0.2s;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), var(--cyan), var(--magenta));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--green);
+    background: var(--bg-panel-2);
+    box-shadow: 0 0 24px rgba(0, 255, 65, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card h3 {
+    font-size: 15px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .card h3::before { content: "> "; color: var(--green); }
+
+  .card p {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .card code {
+    background: var(--green-dark);
+    color: var(--green);
+    padding: 2px 6px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+  }
+
+  /* ---- Avisos ---- */
+  .notice {
+    background: var(--bg-panel);
+    border-left: 3px solid var(--cyan);
+    padding: 18px 24px;
+    margin: 32px 0;
+    font-size: 13px;
+    color: var(--text);
+    position: relative;
+  }
+
+  .notice::before {
+    content: "INFO";
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--cyan);
+    color: var(--bg);
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .warning {
+    background: var(--bg-panel);
+    border-left: 3px solid var(--red);
+    padding: 18px 24px;
+    margin: 32px 0;
+    font-size: 13px;
+    color: var(--text);
+    position: relative;
+  }
+
+  .warning::before {
+    content: "ALERT";
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--red);
+    color: var(--bg);
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .warning strong { color: var(--red); }
+
+  /* ---- Precios ---- */
+  .price-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .price-card:hover {
+    border-color: var(--magenta);
+    box-shadow: 0 0 24px rgba(255, 0, 255, 0.15);
+  }
+
+  .price-card h3 {
+    font-size: 14px;
+    color: var(--magenta);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .price-card .price {
+    font-size: 32px;
+    color: var(--green);
+    font-weight: bold;
+    margin: 16px 0;
+    text-shadow: 0 0 12px var(--green-dim);
+  }
+
+  .price-card .price::before { content: "$ "; color: var(--cyan); font-size: 20px; }
+
+  .price-card p { font-size: 13px; color: var(--text-dim); }
+
+  /* ---- Bloque de límites ---- */
+  .limits-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 700px) {
+    .limits-row { grid-template-columns: 1fr; }
+  }
+
+  .limit-yes, .limit-no {
+    border: 1px solid var(--border);
+    padding: 20px;
+    background: var(--bg-panel);
+  }
+
+  .limit-yes { border-left: 3px solid var(--green); }
+  .limit-no  { border-left: 3px solid var(--red); }
+
+  .limit-yes h4 { color: var(--green); margin-bottom: 12px; font-size: 13px; }
+  .limit-no h4  { color: var(--red); margin-bottom: 12px; font-size: 13px; }
+
+  .limit-yes li::marker { color: var(--green); }
+  .limit-no li::marker  { color: var(--red); }
+
+  .limit-yes ul, .limit-no ul {
+    list-style: none;
+    font-size: 12px;
+  }
+
+  .limit-yes li, .limit-no li {
+    padding: 6px 0;
+    color: var(--text);
+  }
+
+  .limit-yes li::before { content: "✓ "; color: var(--green); font-weight: bold; }
+  .limit-no li::before  { content: "✗ "; color: var(--red); font-weight: bold; }
+
+  /* ---- Footer ---- */
+  footer {
+    padding: 48px 0 32px;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  footer a {
+    color: var(--cyan);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--cyan-dim);
+  }
+
+  footer a:hover { color: var(--green); border-bottom-color: var(--green); }
+
+  .blink {
+    animation: blink 1s step-end infinite;
+    color: var(--green);
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* ---- ASCII logo ---- */
+  .ascii {
+    color: var(--green);
+    font-size: clamp(6px, 1vw, 10px);
+    line-height: 1.1;
+    white-space: pre;
+    margin-bottom: 32px;
+    text-shadow: 0 0 8px var(--green-dim);
+    overflow-x: auto;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 700px) {
+    header { flex-direction: column; align-items: flex-start; }
+    nav a { font-size: 12px; padding: 4px 8px; }
+    .hero { padding: 48px 0 32px; }
+    .terminal-box { padding: 16px; }
+    .status-bar { font-size: 11px; gap: 12px; }
   }
 </style>
 </head>
 <body>
 
-<canvas id="bg"></canvas>
+<canvas id="matrix"></canvas>
 
 <div class="wrap">
+
+  <!-- HEADER -->
   <header>
-    <div class="logo">EVIDENCE<span>·</span>INTEGRITY<span>·</span>OS</div>
+    <div class="logo">EVIDENCE_INTEGRITY_OS</div>
     <nav>
-      <a href="#que-hace">Qué hace</a>
-      <a href="#limites">Límites</a>
-      <a href="#precios">Precios</a>
+      <a href="#modules">modules</a>
+      <a href="#limits">limits</a>
+      <a href="#pricing">pricing</a>
+      <a href="#docs">docs</a>
     </nav>
   </header>
 
+  <!-- HERO -->
   <section class="hero">
-    <h1>Integridad y trazabilidad de <span>evidencia digital</span>.</h1>
-    <p>Convierte cualquier archivo en un paquete verificable con hash SHA-256, sello de tiempo RFC 3161 emitido por TSA externa y cadena de custodia auditable. Diseñado para México y Latinoamérica.</p>
-    <a href="#precios" class="cta">Ver planes</a>
-    <a href="https://github.com/Marcorojas17/evidence-integrity-os-" class="cta secondary">Repositorio</a>
-  </section>
+    <pre class="ascii">
+ ███████╗██╗   ██╗██╗██████╗ ███████╗███╗   ██╗ ██████╗███████╗
+ ██╔════╝██║   ██║██║██╔══██╗██╔════╝████╗  ██║██╔════╝██╔════╝
+ █████╗  ██║   ██║██║██║  ██║█████╗  ██╔██╗ ██║██║     █████╗
+ ██╔══╝  ╚██╗ ██╔╝██║██║  ██║██╔══╝  ██║╚██╗██║██║     ██╔══╝
+ ███████╗ ╚████╔╝ ██║██████╔╝███████╗██║ ╚████║╚██████╗███████╗
+ ╚══════╝  ╚═══╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝╚══════╝
+           I N T E G R I T Y   O S   ::   v0.0.1
+    </pre>
 
-  <section id="que-hace" class="grid">
-    <div class="card">
-      <h3>🔒 Integridad</h3>
-      <p>Calcula <code>content_hash</code> (SHA-256, interoperable) y <code>private_commitment</code> (HMAC delegado a KMS como control privado del titular).</p>
+    <div class="terminal-box">
+      <div class="terminal-line">initializing cryptographic core...<span class="blink">_</span></div>
     </div>
-    <div class="card">
-      <h3>🕐 Sello RFC 3161</h3>
-      <p>Vincula un hash con una fecha/hora verificable mediante token emitido por una TSA externa. La validez depende de la TSA emisora.</p>
-    </div>
-    <div class="card">
-      <h3>⛓️ Hash chain</h3>
-      <p>Cada evento se encadena con detección de alteración, reordenamiento y bifurcación. Anclaje externo periódico opcional.</p>
-    </div>
-    <div class="card">
-      <h3>📦 Paquete .evidence</h3>
-      <p>ZIP autocontenido con manifiesto canónico (JCS, RFC 8785), firma JWS detached (RFC 7797), token de tiempo y reporte técnico legible.</p>
-    </div>
-    <div class="card">
-      <h3>🌐 Verificación pública</h3>
-      <p>Enlace revocable con mínima exposición de datos y consentimiento explícito del titular. Modo privado disponible por defecto.</p>
-    </div>
-    <div class="card">
-      <h3>📄 Reporte PAdES-B-T</h3>
-      <p>PDF firmado con certificado de CA reconocida y sello de tiempo embebido. <strong>Documento técnico legible; no es certificado legal.</strong></p>
+
+    <h1>
+      <span class="glitch" data-text="EVIDENCIA DIGITAL">EVIDENCIA DIGITAL</span><br>
+      verificable. trazable. auditable.
+    </h1>
+
+    <p>Convierte cualquier archivo en un paquete verificable: hash SHA-256, sello de tiempo RFC 3161 emitido por TSA externa, firma JWS detached, y cadena de custodia auditable con detección de alteración, reordenamiento y bifurcación.</p>
+
+    <div class="cta-row">
+      <a href="#pricing" class="cta primary">ACCEDER</a>
+      <a href="https://github.com/Marcorojas17/evidence-integrity-os-" class="cta">CÓDIGO FUENTE</a>
     </div>
   </section>
 
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="stat">build: passing</div>
+    <div class="stat">núcleo criptográfico: parcial</div>
+    <div class="stat warn">migraciones: 2/5</div>
+    <div class="stat warn">revisión legal MX: pendiente</div>
+    <div class="stat danger">demo pública: desactivada</div>
+  </div>
+
+  <!-- MODULES -->
+  <section id="modules">
+    <h2 class="section-header">modules</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>INTEGRIDAD_CRIPTOGRÁFICA</h3>
+        <p><code>content_hash</code> SHA-256 interoperable y <code>private_commitment</code> HMAC delegado a KMS como control privado del titular.</p>
+      </div>
+      <div class="card">
+        <h3>SELLO_TEMPORAL_RFC3161</h3>
+        <p>Vincula un hash con fecha/hora verificable mediante token emitido por TSA externa. La validez depende de la TSA emisora.</p>
+      </div>
+      <div class="card">
+        <h3>HASH_CHAIN_AUDITABLE</h3>
+        <p>Cada evento se encadena con detección de alteración, reordenamiento y bifurcación. Anclaje externo periódico opcional.</p>
+      </div>
+      <div class="card">
+        <h3>PAQUETE_.EVIDENCE</h3>
+        <p>ZIP autocontenido: manifiesto canónico (JCS RFC 8785), firma JWS detached (RFC 7797), token de tiempo y reporte técnico legible.</p>
+      </div>
+      <div class="card">
+        <h3>VERIFICACIÓN_PÚBLICA</h3>
+        <p>Enlace revocable con mínima exposición de datos y consentimiento explícito. Modo privado disponible por defecto.</p>
+      </div>
+      <div class="card">
+        <h3>REPORTE_PADES-B-T</h3>
+        <p>PDF firmado con certificado de CA reconocida y sello de tiempo embebido. <strong>Documento técnico legible; no es certificado legal.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFO -->
   <div class="notice">
-    <strong>Alcance del sistema:</strong> Evidence Integrity OS genera artefactos criptográficos verificables por terceros. No certifica autoría, no emite constancias NOM-151, no sustituye a PSC, FEA, notario, abogado ni perito. La admisibilidad judicial depende del contexto procesal y de la autoridad competente.
+    Evidence Integrity OS genera artefactos criptográficos verificables por terceros. No certifica autoría, no emite constancias NOM-151, no sustituye a PSC, FEA, notario, abogado ni perito. La admisibilidad judicial depende del contexto procesal y de la autoridad competente.
   </div>
 
-  <section id="limites" class="grid">
-    <div class="card">
-      <h3>✅ Sí hace</h3>
-      <p>Vincula un hash con una fecha/hora verificable. Conserva artefactos para revisión independiente. Mantiene trazabilidad operativa auditable.</p>
+  <!-- LIMITS -->
+  <section id="limits">
+    <h2 class="section-header">limits</h2>
+    <div class="limits-row">
+      <div class="limit-yes">
+        <h4>SÍ_HACE</h4>
+        <ul>
+          <li>Vincula un hash con fecha/hora verificable</li>
+          <li>Conserva artefactos para revisión independiente</li>
+          <li>Mantiene trazabilidad operativa auditable</li>
+          <li>Facilita verificación técnica reproducible</li>
+        </ul>
+      </div>
+      <div class="limit-no">
+        <h4>NO_HACE</h4>
+        <ul>
+          <li>No certifica autoría ni titularidad</li>
+          <li>No emite constancias NOM-151</li>
+          <li>No garantiza admisibilidad judicial</li>
+          <li>No sustituye asesoría jurídica o pericial</li>
+        </ul>
+      </div>
     </div>
-    <div class="card">
-      <h3>❌ No hace</h3>
-      <p>No certifica autoría. No emite constancias NOM-151. No garantiza admisibilidad judicial. No sustituye asesoría jurídica, pericial o notarial.</p>
-    </div>
-    <div class="card">
-      <h3>📋 Sobre el archivo original</h3>
-      <p>El MVP <strong>no almacena el archivo original</strong>. El titular conserva su copia. Verificar el paquete no requiere el original; comparar un archivo específico sí requiere recalcular su hash.</p>
+    <div class="notice" style="margin-top: 16px;">
+      El MVP <strong>no almacena el archivo original</strong>. Verificar el paquete no requiere el original; comparar un archivo específico sí requiere recalcular su hash.
     </div>
   </section>
 
-  <section id="precios" class="grid">
-    <div class="card">
-      <h3>Express</h3>
-      <p style="font-size: 28px; color: #ff3b5c; font-weight: 700; margin: 12px 0;">$19 MXN</p>
-      <p>Una validación. Reporte técnico PDF + QR de verificación.</p>
-    </div>
-    <div class="card">
-      <h3>Creador</h3>
-      <p style="font-size: 28px; color: #ff3b5c; font-weight: 700; margin: 12px 0;">$299 MXN/mes</p>
-      <p>50 validaciones al mes, retención configurable, modo privado.</p>
-    </div>
-    <div class="card">
-      <h3>Estudio</h3>
-      <p style="font-size: 28px; color: #ff3b5c; font-weight: 700; margin: 12px 0;">$999 MXN/mes</p>
-      <p>500 validaciones, API, exportación masiva, retención configurable.</p>
+  <!-- PRICING -->
+  <section id="pricing">
+    <h2 class="section-header">pricing</h2>
+    <div class="grid">
+      <div class="price-card">
+        <h3>EXPRESS</h3>
+        <div class="price">19<span style="font-size: 16px; color: var(--text-dim);"> MXN</span></div>
+        <p>Una validación. Reporte técnico PDF + QR de verificación.</p>
+      </div>
+      <div class="price-card">
+        <h3>CREADOR</h3>
+        <div class="price">299<span style="font-size: 16px; color: var(--text-dim);"> MXN/mes</span></div>
+        <p>50 validaciones al mes. Retención configurable. Modo privado.</p>
+      </div>
+      <div class="price-card">
+        <h3>ESTUDIO</h3>
+        <div class="price">999<span style="font-size: 16px; color: var(--text-dim);"> MXN/mes</span></div>
+        <p>500 validaciones. API. Exportación masiva. Retención configurable.</p>
+      </div>
     </div>
   </section>
 
-  <div class="disclaimer">
-    <strong>⚠️ Aviso importante:</strong> Esta plataforma <strong>no sustituye</strong> a abogado, perito, notario ni Prestador de Servicios de Certificación (PSC). Los sellos RFC 3161 son emitidos por TSA externa. Las constancias NOM-151 solo pueden ser emitidas por un PSC acreditado ante la Secretaría de Economía. La firma PAdES del reporte técnico no equivale a una Firma Electrónica Avanzada (FEA) bajo el régimen mexicano. El sistema no garantiza admisibilidad judicial.
+  <!-- WARNING -->
+  <div class="warning">
+    <strong>⚠ AVISO:</strong> Esta plataforma <strong>no sustituye</strong> a abogado, perito, notario ni PSC. Los sellos RFC 3161 son emitidos por TSA externa. Las constancias NOM-151 solo pueden ser emitidas por un PSC acreditado ante la Secretaría de Economía. La firma PAdES del reporte técnico no equivale a una Firma Electrónica Avanzada (FEA) bajo el régimen mexicano. El sistema no garantiza admisibilidad judicial.
   </div>
 
+  <!-- DOCS -->
   <section id="docs">
-    <h2 style="margin-bottom: 20px;">Documentación</h2>
-    <p style="color: #888898;">La documentación técnica completa está en el repositorio: especificación del manifiesto v1, modelo de amenazas, marco legal mexicano, registro de algoritmos, no-objetivos y política de retención.</p>
+    <h2 class="section-header">docs</h2>
+    <p style="color: var(--text-dim); font-size: 14px;">
+      Documentación técnica completa en el repositorio: especificación del manifiesto v1, modelo de amenazas, marco legal mexicano, registro de algoritmos, no-objetivos y política de retención.
+    </p>
   </section>
 
+  <!-- FOOTER -->
   <footer>
-    <p>Evidence Integrity OS · 2026 · MIT License para código, CC-BY-4.0 para documentación</p>
+    <p>EVIDENCE_INTEGRITY_OS :: 2026 :: MIT (código) + CC-BY-4.0 (docs)</p>
     <p style="margin-top: 8px;">
-      <a href="https://github.com/Marcorojas17/evidence-integrity-os-">Ver repositorio en GitHub</a>
+      <a href="https://github.com/Marcorojas17/evidence-integrity-os-">github.com/Marcorojas17/evidence-integrity-os-</a>
+    </p>
+    <p style="margin-top: 16px; color: var(--text-dim);">
+      root@evidence:~# <span class="blink">█</span>
     </p>
   </footer>
+
 </div>
 
 <script>
-// Fondo animado: red de partículas tipo hash
-const canvas = document.getElementById('bg');
+// ============================================================
+// MATRIX RAIN - fondo animado
+// ============================================================
+const canvas = document.getElementById('matrix');
 const ctx = canvas.getContext('2d');
-let W, H, particles = [];
+
+let W, H, cols, drops;
+
+const CHARS = "01アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEF<>{}[]";
+const FONT_SIZE = 14;
 
 function resize() {
   W = canvas.width = window.innerWidth;
   H = canvas.height = window.innerHeight;
-}
-
-function init() {
-  particles = [];
-  const count = Math.min(60, Math.floor(W / 25));
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      r: Math.random() * 1.5 + 0.5
-    });
-  }
+  cols = Math.floor(W / FONT_SIZE);
+  drops = new Array(cols).fill(1);
+  ctx.font = FONT_SIZE + "px 'Courier New', monospace";
 }
 
 function draw() {
-  ctx.fillStyle = '#0a0a0f';
+  // Trazo translúcido para efecto de desvanecimiento
+  ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
   ctx.fillRect(0, 0, W, H);
 
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const d = Math.sqrt(dx*dx + dy*dy);
-      if (d < 120) {
-        ctx.strokeStyle = `rgba(255, 59, 92, ${0.15 * (1 - d/120)})`;
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.stroke();
-      }
-    }
-  }
+  ctx.fillStyle = "#00ff41";
+  ctx.font = FONT_SIZE + "px 'Courier New', monospace";
 
-  particles.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.x < 0 || p.x > W) p.vx *= -1;
-    if (p.y < 0 || p.y > H) p.vy *= -1;
-    ctx.fillStyle = 'rgba(255, 59, 92, 0.6)';
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-  });
+  for (let i = 0; i < drops.length; i++) {
+    const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+    const x = i * FONT_SIZE;
+    const y = drops[i] * FONT_SIZE;
+
+    // Brillo aleatorio
+    ctx.fillStyle = Math.random() > 0.98 ? "#00ffff" : "#00ff41";
+    ctx.fillText(char, x, y);
+
+    if (y > H && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
 
   requestAnimationFrame(draw);
 }
 
-window.addEventListener('resize', () => { resize(); init(); });
+window.addEventListener('resize', resize);
 resize();
-init();
 draw();
+
+// ============================================================
+// GLITCH aleatorio en el título
+// ============================================================
+const glitchEl = document.querySelector('.glitch');
+if (glitchEl) {
+  setInterval(() => {
+    glitchEl.style.textShadow = `2px 0 ${getRandomColor()}, -2px 0 ${getRandomColor()}`;
+    setTimeout(() => { glitchEl.style.textShadow = ''; }, 80);
+  }, 3000);
+}
+
+function getRandomColor() {
+  const colors = ['#00ffff', '#ff00ff', '#ff003c'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
 </script>
 
 </body>

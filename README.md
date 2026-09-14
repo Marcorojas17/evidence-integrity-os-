@@ -232,8 +232,8 @@ flowchart LR
 |------------|--------|
 | Núcleo criptográfico | ✅ hashing, KMS, JCS, manifest, JWS, timestamp, hash_chain |
 | Empaquetado `.evidence` | ✅ builder + verifier + CLI |
-| Migraciones SQL | 🔄 2/5 aprobadas (0001, 0002) |
-| Procesador de pagos | ⬜ Pendiente |
+| Procesador de pagos | ✅ webhook, validación, fulfillment, worker, recovery |
+| Migraciones SQL | ✅ 5/5 aprobadas |
 | API HTTP | ⬜ Pendiente |
 | UI | ✅ Landing estática con tema claro/oscuro |
 | Revisión legal México | ⚠️ Bloqueante externo |
@@ -243,8 +243,8 @@ flowchart LR
 ```text
   Núcleo criptográfico  ████████████████████████████████████ 100%
   Empaquetado .evidence ████████████████████████████████████ 100%
-  Migraciones SQL       ████████████░░░░░░░░░░░░░░░░░░░░░░░░  40%
-  Procesador de pagos   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%
+  Procesador de pagos   ████████████████████████████████████ 100%
+  Migraciones SQL       ████████████████████████████████████ 100%
   API HTTP              ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%
   UI (landing)          ████████████████████████████████████ 100%
   Revisión legal MX     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%
@@ -318,10 +318,12 @@ Si detectas una vulnerabilidad, **no publiques detalles sensibles en un issue p�
 - [x] Implementar núcleo criptográfico (hashing, JCS, JWS, TSA, hash chain).
 - [x] Implementar empaquetado `.evidence` (builder + verifier).
 - [x] Implementar verificador CLI independiente.
-- [ ] Finalizar migraciones SQL versionadas (2/5 aprobadas).
-- [ ] Implementar procesador de pagos (worker, fulfillment, recovery).
+- [x] Finalizar migraciones SQL versionadas (5/5 aprobadas).
+- [x] Implementar procesador de pagos (webhook, validación, fulfillment, worker, recovery).
 - [ ] Implementar API HTTP pública.
-- [ ] Añadir pruebas de corrupción, duplicados y confusión de algoritmos.
+- [ ] Añadir pruebas de integración contra PostgreSQL real.
+- [ ] Añadir pruebas de concurrencia y recovery end-to-end.
+- [ ] Pruebas cruzadas Python ↔ Rust/Node.
 - [ ] Integrar TSA y proveedor de firma con credenciales reales.
 - [ ] Completar revisión legal, de privacidad y seguridad externa.
 

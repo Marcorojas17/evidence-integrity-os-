@@ -1,0 +1,174 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint y formato
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Ruff check
+        run: ruff check src tests scripts
+
+      - name: Ruff format check
+        run: ruff format --check src tests scripts
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: mypy
+        run: mypy src
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: evidence
+          POSTGRES_PASSWORD: evidence_dev_only
+          POSTGRES_DB: evidence_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U evidence"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://evidence:evidence_dev_only@localhost:5432/evidence_test
+      REDIS_URL: redis://localhost:6379/0
+      APP_ENV: test
+      KMS_BACKEND: local
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Aplicar migraciones
+        run: |
+          PGPASSWORD=evidence_dev_only psql -h localhost -U evidence -d evidence_test -f migrations/0001_init_orders.sql
+          PGPASSWORD=evidence_dev_only psql -h localhost -U evidence -d evidence_test -f migrations/0002_init_payment_events.sql
+
+      - name: Ejecutar tests con cobertura
+        run: pytest --cov=src --cov-report=xml --cov-report=term-missing
+
+      - name: Subir cobertura
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage.xml
+          retention-days: 7
+
+  security:
+    name: Seguridad
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Bandit (SAST)
+        run: bandit -c pyproject.toml -r src -f json -o bandit-report.json || true
+
+      - name: pip-audit (dependencias)
+        run: pip-audit --format json --output pip-audit-report.json || true
+
+      - name: Subir reportes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            pip-audit-report.json
+          retention-days: 7
+
+  sbom:
+    name: SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Generar SBOM (CycloneDX)
+        run: pip-audit --format cyclonedx-json --output sbom.json || true
+
+      - name: Subir SBOM
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 30

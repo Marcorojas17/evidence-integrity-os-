@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:evidence-integrity:manifest:v1",
+  "title": "Evidence Integrity Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "manifest_version",
+    "evidence_id",
+    "created_at",
+    "content",
+    "commitment",
+    "chain",
+    "original_included"
+  ],
+  "properties": {
+    "$schema": { "const": "urn:evidence-integrity:manifest:v1" },
+    "manifest_version": { "const": "1.0" },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^ev_[a-z0-9]{8,32}$"
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hash_algorithm", "content_hash", "size_bytes", "mime_type"],
+      "properties": {
+        "hash_algorithm": { "const": "sha256" },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "mime_type": { "type": "string", "minLength": 1 }
+      }
+    },
+    "commitment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "context_id", "private_commitment", "kms_key_id"],
+      "properties": {
+        "algorithm": { "const": "hmac-sha256" },
+        "context_id": {
+          "type": "string",
+          "pattern": "^ctx_[a-zA-Z0-9_-]{4,64}$"
+        },
+        "private_commitment": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kms_key_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["previous_manifest_hash", "chain_position"],
+      "properties": {
+        "previous_manifest_hash": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{64})?$"
+        },
+        "chain_position": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        }
+      }
+    },
+    "original_included": { "type": "boolean" }
+  }
+}

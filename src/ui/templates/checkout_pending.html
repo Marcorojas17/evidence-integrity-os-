@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Pago pendiente — Evidence Integrity OS{% endblock %}
+
+{% block content %}
+<h1>Pago pendiente</h1>
+
+<div class="alert warning">
+  <strong>Tu pago está siendo procesado.</strong> Algunos métodos de pago
+  tardan unos minutos en acreditarse. Te notificaremos cuando se confirme.
+</div>
+
+<div class="card">
+  <h2 style="margin-top: 0; font-size: 16px;">Estado de tu orden</h2>
+  <dl style="display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-family: var(--mono); font-size: 13px;">
+    <dt style="color: var(--text-dim);">order_id</dt>
+    <dd><code>{{ order_id }}</code></dd>
+    <dt style="color: var(--text-dim);">estado</dt>
+    <dd><span class="status-badge status-pending">pending</span></dd>
+  </dl>
+</div>
+
+<p>
+  Consulta el estado en
+  <a href="/orders/{{ order_id }}">/orders/{{ order_id }}</a>.
+</p>
+
+<a href="/" class="btn btn-secondary">Volver al inicio</a>
+
+{% endblock %}

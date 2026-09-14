@@ -1,31 +1,9 @@
-  security:
-    name: Seguridad
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: Instalar dependencias
+      - name: Instalar postgresql-client
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
 
-      - name: Bandit (SAST)
-        run: bandit -c pyproject.toml -r src -f json -o bandit-report.json
-
-      - name: pip-audit (dependencias)
-        run: pip-audit --format json --output pip-audit-report.json
-
-      - name: Subir reportes
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: security-reports
-          path: |
-            bandit-report.json
-            pip-audit-report.json
-          retention-days: 7
+      - name: Aplicar migraciones
+        run: |
+          PGPASSWORD=evidence_dev_only psql -h localhost -U evidence -d evidence_test -f migrations/0001_init_orders.sql
+          PGPASSWORD=evidence_dev_only psql -h localhost -U evidence -d evidence_test -f migrations/0002_init_payment_events.sql

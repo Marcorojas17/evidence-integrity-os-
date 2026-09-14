@@ -85,7 +85,7 @@ paquete.evidence
 
 > **Sobre `evidence-report.pdf`**: es un documento técnico legible. **No es un certificado legal, no es una FEA, no es una constancia NOM-151.** Su firma PAdES-B-T acredita integridad del propio PDF y vinculación temporal.
 
-> **Sobre el archivo original**: **no se incluye por defecto**. El MVP lo desactiva. Si se activa en el futuro, se cifrará con un formato y política explícitos (ver `docs/DATA_PROTECTION.md`). Verificar la estructura, firmas y sellos **no requiere el original**. Comparar un archivo específico contra el paquete **sí requiere recalcular su `content_hash`**.
+> **Sobre el archivo original**: **no se incluye por defecto**. El MVP lo desactiva. Verificar la estructura, firmas y sellos **no requiere el original**. Comparar un archivo específico contra el paquete **sí requiere recalcular su `content_hash`**.
 
 ### Nota sobre perfiles PAdES
 
@@ -94,7 +94,7 @@ paquete.evidence
 - **PAdES-B-LT**: B-T + OCSP/CRL **incorporados dentro del PDF** según ETSI EN 319 142-1.
 - **PAdES-B-LTA**: B-LT + sellos de archivo periódicos.
 
-El MVP usa **B-T**. Un `ocsp.der` guardado en `proofs/` **no convierte** el PDF en B-LT; para ello el material de validación debe embeberse en el propio PDF. Los perfiles LT/LTA se introducirán cuando la retención supere los 2 años o cuando el receptor no tenga conectividad para consultar revocación en línea.
+El MVP usa **B-T**. Un `ocsp.der` guardado en `proofs/` **no convierte** el PDF en B-LT; para ello el material de validación debe embeberse en el propio PDF.
 
 ## `05 // ARQUITECTURA DE CONFIANZA`
 
@@ -114,14 +114,6 @@ flowchart LR
     G --> K[Verificación independiente]
 ```
 
-### Principios
-
-- **Integridad primero:** toda modificación debe ser detectable.
-- **Verificabilidad independiente:** los artefactos deben poder revisarse sin depender de la interfaz original.
-- **Divulgación mínima:** la verificación pública no expone contenido innecesario.
-- **Claves versionadas:** las firmas históricas siguen siendo auditables tras una rotación.
-- **Sin afirmaciones exageradas:** "alineado con" no equivale a "certificado por".
-
 ### Naturaleza de las pruebas
 
 | Elemento | Naturaleza | Verificable por |
@@ -132,20 +124,18 @@ flowchart LR
 | `manifest.jws.json` | Firma de integridad del manifiesto | Cualquiera con la clave pública |
 | `evidence-report.pdf` | Reporte técnico con firma PAdES-B-T | Cualquiera con Adobe Reader o equivalente |
 
-> **Sobre el HMAC**: `private_commitment` es una prueba privada que aporta control adicional del titular. **No protege al `content_hash` público contra ataques de diccionario.** Si el archivo tiene baja entropía, el `content_hash` público sigue siendo comprobable por terceros mediante diccionario. El HMAC se reserva para uso interno del sistema.
+> **Sobre el HMAC**: `private_commitment` es una prueba privada que aporta control adicional del titular. **No protege al `content_hash` público contra ataques de diccionario.** Si el archivo tiene baja entropía, el `content_hash` público sigue siendo comprobable por terceros mediante diccionario.
 
 ## `06 // MARCO DE REFERENCIA`
 
 ### Alineación de diseño con normativa mexicana
 
-> **"Alineación de diseño"** significa que el sistema se construye considerando estas normas. **No implica cumplimiento certificado, ni admisibilidad automática, ni respaldo oficial.** La cita exacta de artículos debe validarse con asesoría legal antes de usarse en procedimientos.
+> **"Alineación de diseño"** significa que el sistema se construye considerando estas normas. **No implica cumplimiento certificado, ni admisibilidad automática, ni respaldo oficial.**
 
 - **NOM-151-SCFI-2016** (publicada en DOF el 30 de marzo de 2017) — conservación de mensajes de datos. La constancia la emite un PSC acreditado ante la Secretaría de Economía.
 - **Código de Comercio, Art. 97** — uso de firma electrónica en mensajes de datos.
 - **Código Nacional de Procedimientos Penales, Art. 265** — valoración de datos y pruebas.
 - **LFPDPPP** — protección de datos personales en posesión de particulares.
-
-Ver [`docs/explanation/legal-mx.md`](docs/explanation/legal-mx.md).
 
 ### Estándares internacionales de referencia
 
@@ -154,12 +144,10 @@ Ver [`docs/explanation/legal-mx.md`](docs/explanation/legal-mx.md).
 - **RFC 7797** — JWS Unencoded Payload Option.
 - **RFC 7515 / 7518 / 7638** — JWS, algoritmos, thumbprints de clave.
 - **ETSI EN 319 142-1** — Perfiles PAdES.
-- **ISO/IEC 27001** — Sistema de gestión de seguridad de la información (referencia de diseño).
-- **ISO/IEC 27037** — Guía para identificación, recolección, adquisición y preservación de evidencia digital (referencia técnica).
+- **ISO/IEC 27001** — referencia de diseño.
+- **ISO/IEC 27037** — referencia técnica forense.
 
-> Ninguna de estas referencias implica certificación. Solo describen el marco técnico sobre el cual se diseña el sistema.
-
-Ver [`docs/reference/algorithm-registry.md`](docs/reference/algorithm-registry.md) para la postura criptográfica.
+> Ninguna de estas referencias implica certificación.
 
 ## `07 // ESTADO DEL PROYECTO`
 
@@ -186,8 +174,6 @@ Guía paso a paso para operación sin terminal: [`docs/tutorials/01-uso-manual.m
 
 Si detectas una vulnerabilidad, **no publiques detalles sensibles en un issue público**. Consulta [`SECURITY.md`](SECURITY.md) para el canal de reporte responsable.
 
-Para evidencia con datos personales, considera como mínimo:
-
 - Minimización de datos.
 - Control de acceso por rol.
 - Cifrado en tránsito y en reposo.
@@ -195,14 +181,12 @@ Para evidencia con datos personales, considera como mínimo:
 - Políticas de retención y eliminación.
 - Revisión con especialistas en LFPDPPP.
 
-Ver [`docs/DATA_PROTECTION.md`](docs/DATA_PROTECTION.md) y [`docs/RETENTION_POLICY.md`](docs/RETENTION_POLICY.md).
-
 ## `11 // HOJA DE RUTA`
 
 - [x] Definir `manifest.payload.json` v1.
 - [x] Documentar límites legales y no-objetivos.
 - [x] Diseñar modelo de órdenes, eventos y fulfillments.
-- [x] Congelar arquitectura de pagos (3 fases + lease).
+- [x] Congelar arquitectura de pagos.
 - [ ] Finalizar migraciones SQL versionadas (2/5 aprobadas).
 - [ ] Implementar núcleo criptográfico (hashing, JCS, JWS, TSA).
 - [ ] Implementar empaquetado `.evidence`.
@@ -212,8 +196,6 @@ Ver [`docs/DATA_PROTECTION.md`](docs/DATA_PROTECTION.md) y [`docs/RETENTION_POLI
 - [ ] Completar revisión legal, de privacidad y seguridad externa.
 
 ## `12 // CONTRIBUIR`
-
-Las contribuciones son bienvenidas, especialmente en criptografía aplicada, seguridad, interoperabilidad, privacidad, documentación y pruebas reproducibles.
 
 Antes de contribuir:
 

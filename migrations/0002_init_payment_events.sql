@@ -1,9 +1,6 @@
--- 🗄️ 0002_init_payment_events.sql
--- ─────────────────────────────────────────────────────────────
--- Eventos crudos de Mercado Pago y resultado de cada verificación.
--- Aquí viven los rechazos de validación. No se crean fulfillments
--- para eventos rechazados.
--- ─────────────────────────────────────────────────────────────
+-- 0002_init_payment_events.sql
+-- Eventos crudos de Mercado Pago y resultado de cada verificacion.
+-- Aqui viven los rechazos de validacion.
 
 BEGIN;
 

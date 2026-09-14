@@ -161,6 +161,7 @@ flowchart LR
 | Pruebas automatizadas | ⬜ Pendiente |
 | Operación manual documentada | ✅ Disponible |
 | Revisión legal México | ⚠️ Bloqueante externo |
+| Núcleo criptográfico (parcial) | 🔄 hashing, JCS, manifest, JWS implementados; falta timestamp, hash chain, builder y verificador |
 
 ## `08 // DEMO`
 

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Pago recibido — Evidence Integrity OS{% endblock %}
+
+{% block content %}
+<h1>Pago recibido</h1>
+
+<div class="alert" style="margin-top: 24px;">
+  <strong>Estamos procesando tu solicitud.</strong> La confirmación del pago
+  se realiza en el backend; este mensaje solo indica que el navegador regresó
+  correctamente desde Mercado Pago.
+</div>
+
+<div class="card">
+  <h2 style="margin-top: 0; font-size: 16px;">Estado de tu orden</h2>
+  <dl style="display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-family: var(--mono); font-size: 13px;">
+    <dt style="color: var(--text-dim);">order_id</dt>
+    <dd><code>{{ order_id }}</code></dd>
+
+    <dt style="color: var(--text-dim);">estado</dt>
+    <dd><span class="status-badge status-{{ status }}">{{ status }}</span></dd>
+
+    <dt style="color: var(--text-dim);">payment_id</dt>
+    <dd><code>{{ payment_id }}</code></dd>
+  </dl>
+</div>
+
+<p>
+  Te notificaremos cuando el paquete <code>.evidence</code> esté disponible.
+  También puedes consultar el estado en
+  <a href="/orders/{{ order_id }}">/orders/{{ order_id }}</a>.
+</p>
+
+<a href="/" class="btn btn-secondary">Volver al inicio</a>
+
+{% endblock %}

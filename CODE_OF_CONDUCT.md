@@ -29,15 +29,29 @@ Este código aplica en:
 - Comunicaciones por correo relacionadas con el proyecto.
 - Eventos, charlas o presentaciones en nombre del proyecto.
 
-## Reporte
+## Reporte de conducta
 
-Si experimentas o presencias comportamiento inaceptable:
+Los reportes de conducta **no** se gestionan por el canal de seguridad técnica (`SECURITY.md`), ni por GitHub Security Advisories.
 
-1. Documenta lo ocurrido con evidencia clara.
-2. Envía un reporte privado al canal indicado en [`SECURITY.md`](SECURITY.md).
-3. No publiques detalles sensibles en issues públicos.
+### Canal dedicado
 
-Los reportes se manejan con confidencialidad.
+El proyecto **aún no cuenta con un canal de moderación formalizado**. Antes del inicio de operaciones públicas y de la aceptación de contribuciones externas, se publicará un canal dedicado para reportes de conducta, con responsable identificado y procedimiento documentado.
+
+### Mientras no exista canal dedicado
+
+- No se aceptan contribuciones externas ni se publican issues abiertos al público general.
+- Si detectas una conducta inaceptable en cualquier interacción vinculada al proyecto, abstente de publicar detalles y espera la apertura del canal formal.
+- El canal de seguridad se reserva exclusivamente para vulnerabilidades técnicas.
+
+### Formato sugerido del reporte (cuando el canal esté activo)
+
+- Fecha y contexto.
+- Personas involucradas.
+- Descripción de los hechos.
+- Evidencia (capturas, enlaces, mensajes).
+- Impacto percibido.
+
+Los reportes se manejarán con confidencialidad y se responderán según disponibilidad del equipo de moderación.
 
 ## Consecuencias
 

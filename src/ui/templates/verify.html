@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Verificar paquete — Evidence Integrity OS{% endblock %}
+
+{% block content %}
+<h1>Verificar paquete .evidence</h1>
+<p>
+  Sube un paquete <code>.evidence</code> para verificar su integridad.
+  El archivo <strong>no se almacena</strong> en el servidor; solo se procesa
+  para devolver el resultado.
+</p>
+
+<div class="card">
+  <div class="dropzone" id="dropzone">
+    <div class="dropzone-icon">[ ↑ ]</div>
+    <div class="dropzone-text">
+      Arrastra un paquete <strong>.evidence</strong> aquí<br>
+      o <strong>haz clic</strong> para seleccionar
+    </div>
+    <input type="file" id="file" accept=".evidence,application/zip" hidden>
+  </div>
+
+  <div class="file-info" id="file-info" style="display: none;"></div>
+
+  <div style="margin-top: 20px;">
+    <button class="btn btn-primary" id="verify-btn" disabled>
+      Verificar paquete
+    </button>
+  </div>
+</div>
+
+<div id="result" style="display: none;"></div>
+
+<div class="alert">
+  <strong>Nota técnica.</strong> La verificación incluye: estructura del ZIP,
+  canonicalización JCS, validación contra esquema, firma JWS detached,
+  <code>messageImprint</code> del token RFC 3161, hash chain y estado de
+  revocación declarado.
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/verify_client.js"></script>
+{% endblock %}

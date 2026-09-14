@@ -52,7 +52,8 @@ ARCHIVO ORIGINAL
        ├──▶ private_commitment (HMAC-SHA256 vía KMS, prueba privada)
        ├──▶ token.rfc3161      (TSA externa, vinculado al hash)
        ├──▶ evidence-report.pdf (PAdES-B-T: firma + sello de tiempo)
-       └──▶ evento encadenado + anclaje externo
+       ├──▶ evento encadenado + anclaje externo
+       └──▶ cierre firmado del log de auditoría
        │
        ▼
 PAQUETE .evidence VERIFICABLE
@@ -72,7 +73,7 @@ PAQUETE .evidence VERIFICABLE
 | 🔒 **Integridad** | Calcula `content_hash` (SHA-256) y `private_commitment` (HMAC, prueba privada). |
 | 🕐 **Tiempo** | Integra sellos RFC 3161 emitidos por una TSA externa. |
 | 📄 **Reporte** | Genera `evidence-report.pdf` con firma PAdES-B-T (firma + sello de tiempo). |
-| ⛓️ **Auditoría** | Registra eventos en una hash chain con anclaje externo. |
+| ⛓️ **Auditoría** | Registra eventos en una hash chain con firma por evento y cierres periódicos. |
 | 🌐 **Verificación** | Ofrece consulta pública mínima, solo con consentimiento explícito. |
 | 💳 **Pagos** | Gestiona órdenes, webhooks e idempotencia para la emisión. |
 
@@ -157,9 +158,10 @@ flowchart LR
     E --> G
     F --> G
     G --> H[Evento de auditoría]
-    H --> I[Hash chain]
-    I --> J[Anclaje externo]
-    G --> K[Verificación independiente]
+    H --> I[Hash chain firmada]
+    I --> J[Cierre periódico]
+    J --> K[Anclaje externo]
+    G --> L[Verificación independiente]
 ```
 
 ### Naturaleza de las pruebas
@@ -171,6 +173,8 @@ flowchart LR
 | `token.rfc3161` | Vinculación temporal emitida por TSA externa | Cualquiera con el token |
 | `manifest.jws.json` | Firma de integridad del manifiesto | Cualquiera con la clave pública |
 | `evidence-report.pdf` | Reporte técnico con firma PAdES-B-T | Cualquiera con Adobe Reader o equivalente |
+| `audit.log.jsonl` | Log encadenado con firma por evento | Cualquiera con la clave pública |
+| `close_*.bin` | Cierre firmado y anclado externamente | Cualquiera con acceso al anclaje |
 
 ```text
 > SOBRE EL HMAC: private_commitment es una prueba privada que aporta
@@ -231,6 +235,7 @@ flowchart LR
 | Componente | Estado |
 |------------|--------|
 | Núcleo criptográfico | ✅ hashing, KMS, JCS, manifest, JWS, timestamp, hash_chain |
+| Log de auditoría | ✅ logger encadenado + anclaje externo + verificación |
 | Empaquetado `.evidence` | ✅ builder + verifier + CLI |
 | Procesador de pagos | ✅ webhook, validación, fulfillment, worker, recovery |
 | Migraciones SQL | ✅ 5/5 aprobadas |
@@ -242,6 +247,7 @@ flowchart LR
 
 ```text
   Núcleo criptográfico  ████████████████████████████████████ 100%
+  Log de auditoría      ████████████████████████████████████ 100%
   Empaquetado .evidence ████████████████████████████████████ 100%
   Procesador de pagos   ████████████████████████████████████ 100%
   Migraciones SQL       ████████████████████████████████████ 100%
@@ -288,6 +294,26 @@ Salida esperada:
    revocacion: active
 ```
 
+### Cómo verificar el log de auditoría
+
+```bash
+$ python -m src.audit.integrity --log audit.jsonl --closes closes.jsonl --anchor ./anchors
+```
+
+Salida esperada:
+
+```text
+[1/4] read ... ok (1247 eventos)
+[2/4] chain ... ok
+[3/4] event_signatures ... ok
+[4/4] closes ... ok (12 cierres)
+
+-> RESULTADO: VALIDO
+   event_count: 1247
+   close_count: 12
+   last_event_hash: 8f3a...
+```
+
 ---
 
 ```text
@@ -316,6 +342,7 @@ Si detectas una vulnerabilidad, **no publiques detalles sensibles en un issue p�
 - [x] Documentar límites legales y no-objetivos.
 - [x] Congelar arquitectura de pagos.
 - [x] Implementar núcleo criptográfico (hashing, JCS, JWS, TSA, hash chain).
+- [x] Implementar log de auditoría encadenado con anclaje externo.
 - [x] Implementar empaquetado `.evidence` (builder + verifier).
 - [x] Implementar verificador CLI independiente.
 - [x] Finalizar migraciones SQL versionadas (5/5 aprobadas).
@@ -323,6 +350,7 @@ Si detectas una vulnerabilidad, **no publiques detalles sensibles en un issue p�
 - [ ] Implementar API HTTP pública.
 - [ ] Añadir pruebas de integración contra PostgreSQL real.
 - [ ] Añadir pruebas de concurrencia y recovery end-to-end.
+- [ ] Añadir pruebas de seguridad (algorithm confusion, dictionary attack, corruption).
 - [ ] Pruebas cruzadas Python ↔ Rust/Node.
 - [ ] Integrar TSA y proveedor de firma con credenciales reales.
 - [ ] Completar revisión legal, de privacidad y seguridad externa.

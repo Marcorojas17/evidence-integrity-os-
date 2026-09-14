@@ -199,3 +199,7 @@ exclude_lines = [
 [tool.bandit]
 exclude_dirs = ["tests", "scripts"]
 skips = ["B101"]
+  # Cloud providers
+  "boto3>=1.34,<2.0",
+  "azure-identity>=1.17,<2.0",
+  "azure-keyvault-keys>=4.9,<5.0",

@@ -1,18 +1,19 @@
-"""Firma JWS detached segun RFC 7797.
+"""Firma JWS detached RFC 7797 con validacion estricta.
 
-Reglas estrictas:
-- Algoritmos en allowlist. Por defecto: ES256.
-- alg=none rechazado explicitamente.
-- b64=false obligatorio, declarado en crit.
-- Payload detached: el JWS no transporta el payload.
-- El verificador recalcula el payload canonico desde el manifiesto.
+Reglas:
+- Algoritmos en allowlist. Solo ES256 por defecto.
+- alg=none rechazado.
+- b64=false declarado en crit.
+- kid obligatorio; debe coincidir con thumbprint RFC 7638 del cert hoja.
+- x5c obligatorio; la clave publica se extrae del certificado hoja.
+- Validacion de cadena contra trust store externo (obligatoria en prod).
 """
 
 from __future__ import annotations
 
 import base64
 import json
-from typing import Any, Final
+from typing import Any, Callable, Final
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
@@ -22,13 +23,13 @@ from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey,
     EllipticCurvePublicKey,
 )
+from cryptography.x509 import Certificate, load_der_x509_certificate
 
 from .errors import AlgorithmNotAllowedError, InvalidSignatureError, JwsError
 
 ALLOWED_ALGORITHMS: Final[frozenset[str]] = frozenset({"ES256"})
-CURVE_BY_ALG: Final[dict[str, ec.EllipticCurve]] = {
-    "ES256": ec.SECP256R1(),
-}
+
+TrustStore = Callable[[list[Certificate]], None]
 
 
 def _b64url_encode(data: bytes) -> str:
@@ -37,7 +38,39 @@ def _b64url_encode(data: bytes) -> str:
 
 def _b64url_decode(data: str) -> bytes:
     pad = "=" * (-len(data) % 4)
-    return base64.urlsafe_b64decode(data + pad)
+    try:
+        return base64.urlsafe_b64decode(data + pad)
+    except Exception as exc:
+        raise JwsError("base64url invalido") from exc
+
+
+def _decode_x5c(x5c: list[str]) -> list[Certificate]:
+    if not isinstance(x5c, list) or not x5c:
+        raise JwsError("x5c debe ser lista no vacia")
+    certs: list[Certificate] = []
+    for i, b64 in enumerate(x5c):
+        if not isinstance(b64, str):
+            raise JwsError(f"x5c[{i}] debe ser string base64")
+        try:
+            der = base64.b64decode(b64, validate=True)
+            certs.append(load_der_x509_certificate(der))
+        except Exception as exc:
+            raise JwsError(f"x5c[{i}] no decodifica a certificado X.509") from exc
+    return certs
+
+
+def _jwk_thumbprint_sha256(public_key: EllipticCurvePublicKey) -> str:
+    """RFC 7638 thumbprint de la clave publica EC P-256."""
+    numbers = public_key.public_numbers()
+    jwk = {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": _b64url_encode(numbers.x.to_bytes(32, "big")),
+        "y": _b64url_encode(numbers.y.to_bytes(32, "big")),
+    }
+    canonical = json.dumps(jwk, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    import hashlib
+    return _b64url_encode(hashlib.sha256(canonical).digest())
 
 
 def sign_detached(
@@ -47,18 +80,6 @@ def sign_detached(
     x5c: list[str],
     alg: str = "ES256",
 ) -> dict[str, Any]:
-    """Genera un JWS detached RFC 7797.
-
-    Args:
-        payload_bytes: bytes canonicos del manifiesto.
-        private_key: clave privada EC P-256.
-        kid: thumbprint RFC 7638 de la clave publica.
-        x5c: cadena de certificados en base64 DER.
-        alg: algoritmo. Solo ES256 en v1.
-
-    Returns:
-        Dict con payload vacio, protected y signature (JWS JSON Flattened).
-    """
     if alg not in ALLOWED_ALGORITHMS:
         raise AlgorithmNotAllowedError(f"Algoritmo no permitido: {alg}")
     if not kid:
@@ -66,7 +87,7 @@ def sign_detached(
     if not x5c:
         raise JwsError("x5c es obligatorio")
 
-    protected_header = {
+    protected = {
         "alg": alg,
         "b64": False,
         "crit": ["b64"],
@@ -75,8 +96,7 @@ def sign_detached(
         "x5c": x5c,
     }
     protected_b64 = _b64url_encode(
-        json.dumps(protected_header, separators=(",", ":"), sort_keys=True)
-        .encode("utf-8")
+        json.dumps(protected, separators=(",", ":"), sort_keys=True).encode("utf-8")
     )
     signing_input = protected_b64.encode("ascii") + b"." + payload_bytes
 
@@ -94,12 +114,15 @@ def sign_detached(
 def verify_detached(
     jws: dict[str, Any],
     payload_bytes: bytes,
-    public_key: EllipticCurvePublicKey,
-) -> None:
-    """Verifica un JWS detached RFC 7797.
+    trust_store: TrustStore | None = None,
+) -> EllipticCurvePublicKey:
+    """Verifica JWS detached RFC 7797.
 
-    Raises:
-        AlgorithmNotAllowedError, InvalidSignatureError, JwsError
+    - Requiere kid y x5c.
+    - Valida kid contra thumbprint RFC 7638 del cert hoja.
+    - Valida x5c decodificando todos los certificados.
+    - Si trust_store se pasa, valida la cadena. Sin trust_store, la
+      verificacion es solo criptografica contra la clave del cert hoja.
     """
     if jws.get("payload", None) != "":
         raise JwsError("payload debe estar vacio (JWS detached)")
@@ -119,10 +142,31 @@ def verify_detached(
         raise AlgorithmNotAllowedError("alg=none prohibido")
     if alg not in ALLOWED_ALGORITHMS:
         raise AlgorithmNotAllowedError(f"Algoritmo no permitido: {alg}")
+
     if protected.get("b64") is not False:
         raise JwsError("b64 debe ser false")
-    if "b64" not in (protected.get("crit") or []):
-        raise JwsError("b64 debe estar declarado en crit")
+    crit = protected.get("crit")
+    if not isinstance(crit, list) or "b64" not in crit:
+        raise JwsError("crit debe ser lista y contener 'b64'")
+
+    kid = protected.get("kid")
+    if not isinstance(kid, str) or not kid:
+        raise JwsError("kid es obligatorio")
+
+    x5c = protected.get("x5c")
+    certs = _decode_x5c(x5c)
+
+    leaf = certs[0]
+    leaf_pub = leaf.public_key()
+    if not isinstance(leaf_pub, EllipticCurvePublicKey):
+        raise JwsError("Certificado hoja no contiene clave EC")
+
+    expected_kid = _jwk_thumbprint_sha256(leaf_pub)
+    if kid != expected_kid:
+        raise JwsError("kid no coincide con thumbprint del certificado hoja")
+
+    if trust_store is not None:
+        trust_store(certs)
 
     signing_input = protected_b64.encode("ascii") + b"." + payload_bytes
     raw_sig = _b64url_decode(signature_b64)
@@ -134,6 +178,8 @@ def verify_detached(
     der_sig = utils.encode_dss_signature(r, s)
 
     try:
-        public_key.verify(der_sig, signing_input, ECDSA(hashes.SHA256()))
+        leaf_pub.verify(der_sig, signing_input, ECDSA(hashes.SHA256()))
     except InvalidSignature as exc:
         raise InvalidSignatureError("Firma no verifica") from exc
+
+    return leaf_pub

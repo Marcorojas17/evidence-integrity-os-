@@ -52,7 +52,8 @@
 ```
 
 - 🔒 Hashing SHA-256 y compromiso HMAC delegado a KMS
-- 🔒 Interfaz KMS: `LocalKMS`, stubs `AWSKMS` y `VaultKMS`
+- 🔒 Interfaz KMS: `LocalKMS`, `AWSKMS` (implementación real con boto3), stubs `AzureKMS` y `VaultKMS`
+- 🔒 Factory `build_kms_from_env` para elegir proveedor según variables de entorno
 - 🔒 Canonicalización JCS RFC 8785 vía `rfc8785`
 - 🔒 Manifiesto v1 con validación contra JSON Schema
 - 🔒 JWS detached RFC 7797 con allowlist y rechazo de `alg=none`
@@ -64,7 +65,8 @@
 ```
 
 - ⛓️ Logger encadenado con firma por evento
-- ⛓️ Anclaje externo: `LocalFilesystemAnchor`, stubs de S3 Object Lock y Azure Immutable Blob
+- ⛓️ Anclaje externo: `LocalFilesystemAnchor`, `S3ObjectLockAnchor` (retención COMPLIANCE), stub de Azure Immutable Blob
+- ⛓️ Factory `build_anchor_from_env` para elegir proveedor según variables de entorno
 - ⛓️ Cierres firmados y verificables del log completo
 - ⛓️ Verificación end-to-end: cadena, firmas, cierres y anclajes
 
@@ -98,6 +100,19 @@
 - 🌐 Endpoint `/health` para probes
 - 🌐 Verificación pública con divulgación mínima
 - 🌐 Endpoints administrativos con autenticación por token
+- 🌐 Static files montados desde `src/ui/static`
+
+```text
+  [🖥️]  UI DE APLICACIÓN
+```
+
+- 🖥️ Template `base.html` con header, nav, theme toggle y footer
+- 🖥️ Template `verify.html` con dropzone para verificar paquetes `.evidence`
+- 🖥️ Templates de checkout: `success`, `pending`, `failure`
+- 🖥️ Template `order.html` con detalle de orden y estado
+- 🖥️ CSS de la app con tema claro/oscuro coherente con la landing
+- 🖥️ JS de verificación con dropzone y resultado estructurado (el archivo nunca se sube al servidor de forma persistente)
+- 🖥️ Rutas server-side rendering con Jinja2
 
 ```text
   [✅]  TESTS
@@ -108,6 +123,8 @@
 - ✅ Unitarios de firma, estados, validación y webhook
 - ✅ Unitarios de log encadenado y verificación de integridad
 - ✅ Seguridad: confusión de algoritmos, ataques de diccionario, corrupción, validación de esquema
+- ✅ AWS KMS con `botocore.stub.Stubber`
+- ✅ S3ObjectLockAnchor con `botocore.stub.Stubber`
 
 ```text
   [📝]  DOCUMENTACIÓN
@@ -152,8 +169,8 @@
   [ ]  Tests de integración contra PostgreSQL real
   [ ]  Pruebas de concurrencia y recovery end-to-end
   [ ]  Pruebas cruzadas Python ↔ Rust/Node
-  [ ]  Implementación real de AWSKMS
-  [ ]  Implementación real de S3ObjectLockAnchor
+  [ ]  Implementación real de AzureKMS
+  [ ]  Implementación real de AzureImmutableBlobAnchor
   [ ]  Integración con TSA cualificada y proveedor de firma
   [ ]  Revisión legal, de privacidad y seguridad externa
 ```

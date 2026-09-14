@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evidence Integrity OS — Integridad y trazabilidad de evidencia digital</title>
+<meta name="description" content="Plataforma técnica de integridad y trazabilidad de evidencia digital para México y Latinoamérica. Sellado RFC 3161, hash chain, paquetes verificables.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #e8e8f0;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  canvas#bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.35;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 40px 0; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-weight: 700; font-size: 18px; letter-spacing: 0.5px; }
+  .logo span { color: #ff3b5c; }
+  nav a { color: #a0a0b0; text-decoration: none; margin-left: 24px; font-size: 14px; }
+  nav a:hover { color: #fff; }
+  .hero { padding: 100px 0 80px; }
+  .hero h1 { font-size: 48px; line-height: 1.1; font-weight: 800; margin-bottom: 24px; }
+  .hero h1 span { color: #ff3b5c; }
+  .hero p { font-size: 20px; color: #a0a0b0; max-width: 680px; margin-bottom: 40px; }
+  .cta { display: inline-block; background: #ff3b5c; color: #fff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.2s; }
+  .cta:hover { transform: translateY(-2px); }
+  .cta.secondary { background: transparent; border: 1px solid #2a2a35; color: #e8e8f0; margin-left: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 60px 0; }
+  .card { background: #12121a; border: 1px solid #1e1e28; border-radius: 12px; padding: 28px; }
+  .card h3 { font-size: 18px; margin-bottom: 12px; }
+  .card p { font-size: 14px; color: #888898; }
+  .disclaimer { background: #1a1218; border-left: 3px solid #ff3b5c; padding: 20px; border-radius: 8px; margin: 40px 0; font-size: 14px; color: #c0c0d0; }
+  .notice { background: #121218; border-left: 3px solid #8b5cf6; padding: 16px 20px; border-radius: 8px; margin: 24px 0; font-size: 13px; color: #a0a0b0; }
+  footer { padding: 60px 0 40px; border-top: 1px solid #1e1e28; margin-top: 80px; font-size: 13px; color: #666; text-align: center; }
+  footer a { color: #888898; text-decoration: none; }
+  footer a:hover { color: #fff; }
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 32px; }
+    .hero p { font-size: 16px; }
+    nav a { margin-left: 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="logo">EVIDENCE<span>·</span>INTEGRITY<span>·</span>OS</div>
+    <nav>
+      <a href="#que-hace">Qué hace</a>
+      <a href="#limites">Límites</a>
+      <a href="#precios">Precios</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Integridad y trazabilidad de <span>evidencia digital</span>.</h1>
+    <p>Convierte cualquier archivo en un paquete verificable con hash SHA-256, sello de tiempo RFC 3161 emitido por TSA externa y cadena de custodia auditable. Diseñado para México y Latinoamérica.</p>
+    <a href="#precios" class="cta">Ver planes</a>
+    <a href="https://github.com/Marcorojas17/evidence-integrity-os-" class="cta secondary">Repositorio</a>
+  </section>
+
+  <section id="que-hace" class="grid">
+    <div class="card">
+      <h3>🔒 Integridad</h3>
+      <p>Calcula <code>content_hash</code> (SHA-256, interoperable) y <code>private_commitment</code> (HMAC delegado a KMS como control privado del titular).</p>
+    </div>
+    <div class="card">
+      <h3>🕐 Sello RFC 3161</h3>
+      <p>Vincula un hash con una fecha/hora verificable mediante token emitido por una TSA externa. La validez depende de la TSA emisora.</p>
+    </div>
+    <div class="card">
+      <h3>⛓️ Hash chain</h3>
+      <p>Cada evento se encadena con detección de alteración, reordenamiento y bifurcación. Anclaje externo periódico opcional.</p>
+    </div>
+    <div class="card">
+      <h3>📦 Paquete .evidence</h3>
+      <p>ZIP autocontenido con manifiesto canónico (JCS, RFC 8785), firma JWS detached (RFC 7797), token de tiempo y reporte técnico legible.</p>
+    </div>
+    <div class="card">
+      <h3>🌐 Verificación pública</h3>
+      <p>Enlace revocable con mínima exposición de datos y consentimiento explícito del titular. Modo privado disponible por defecto.</p>
+    </div>
+    <div class="card">
+      <h3>📄 Reporte PAdES-B-T</h3>
+      <p>PDF firmado con certificado de CA reconocida y sello de tiempo embebido. <strong>Documento técnico legible; no es certificado legal.</strong></p>
+    </div>
+  </section>
+
+  <div class="notice">
+    <strong>Alcance del sistema:</strong> Evidence Integrity OS genera artefactos criptográficos verificables por terceros. No certifica autoría, no emite constancias NOM-151, no sustituye a PSC, FEA, notario, abogado ni perito. La admisibilidad judicial depende del contexto procesal y de la autoridad competente.
+  </div>
+
+  <section id="limites" class="grid">
+    <div class="card">
+      <h3>✅ Sí hace</h3>
+      <p>Vincula un hash con una fecha/hora verificable. Conserva artefactos para revisión independiente. Mantiene trazabilidad operativa auditable.</p>
+    </div>
+    <div class="card">
+      <h3>❌ No hace</h3>
+      <p>No certifica autoría. No emite constancias NOM-151. No garantiza admisibilidad judicial. No sustituye asesoría jurídica, pericial o notarial.</p>
+    </div>
+    <div class="card">
+      <h3>📋 Sobre el archivo original</h3>
+      <p>El MVP <strong>no almacena el archivo original</strong>. El titular conserva su copia. Verificar el paquete no requiere el original; comparar un archivo específico sí requiere recalcular su hash.</p>
+    </div>
+  </section>
+
+  <section id="precios" class="grid">
+    <div class="card">
+      <h3>Express</h3>
+      <p style="font-size: 28px; color: #ff3b5c; font-weight: 700; margin: 12px 0;">$19 MXN</p>
+      <p>Una validación. Reporte técnico PDF + QR de verificación.</p>
+    </div>
+    <div class="card">
+      <h3>Creador</h3>
+      <p style="font-size: 28px; color: #ff3b5c; font-weight: 700; margin: 12px 0;">$299 MXN/mes</p>
+      <p>50 validaciones al mes, retención configurable, modo privado.</p>
+    </div>
+    <div class="card">
+      <h3>Estudio</h3>
+      <p style="font-size: 28px; color: #ff3b5c; font-weight: 700; margin: 12px 0;">$999 MXN/mes</p>
+      <p>500 validaciones, API, exportación masiva, retención configurable.</p>
+    </div>
+  </section>
+
+  <div class="disclaimer">
+    <strong>⚠️ Aviso importante:</strong> Esta plataforma <strong>no sustituye</strong> a abogado, perito, notario ni Prestador de Servicios de Certificación (PSC). Los sellos RFC 3161 son emitidos por TSA externa. Las constancias NOM-151 solo pueden ser emitidas por un PSC acreditado ante la Secretaría de Economía. La firma PAdES del reporte técnico no equivale a una Firma Electrónica Avanzada (FEA) bajo el régimen mexicano. El sistema no garantiza admisibilidad judicial.
+  </div>
+
+  <section id="docs">
+    <h2 style="margin-bottom: 20px;">Documentación</h2>
+    <p style="color: #888898;">La documentación técnica completa está en el repositorio: especificación del manifiesto v1, modelo de amenazas, marco legal mexicano, registro de algoritmos, no-objetivos y política de retención.</p>
+  </section>
+
+  <footer>
+    <p>Evidence Integrity OS · 2026 · MIT License para código, CC-BY-4.0 para documentación</p>
+    <p style="margin-top: 8px;">
+      <a href="https://github.com/Marcorojas17/evidence-integrity-os-">Ver repositorio en GitHub</a>
+    </p>
+  </footer>
+</div>
+
+<script>
+// Fondo animado: red de partículas tipo hash
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function init() {
+  particles = [];
+  const count = Math.min(60, Math.floor(W / 25));
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 1.5 + 0.5
+    });
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        ctx.strokeStyle = `rgba(255, 59, 92, ${0.15 * (1 - d/120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0 || p.x > W) p.vx *= -1;
+    if (p.y < 0 || p.y > H) p.vy *= -1;
+    ctx.fillStyle = 'rgba(255, 59, 92, 0.6)';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', () => { resize(); init(); });
+resize();
+init();
+draw();
+</script>
+
+</body>
+</html>

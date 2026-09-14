@@ -1,38 +1,50 @@
 # 🤝 Guía de Contribución
 
-Gracias por tu interés en Evidence Integrity OS.
+> [!IMPORTANT]
+> **Contribuciones externas no aceptadas en la fase actual.**
+>
+> El proyecto se encuentra en etapa de diseño y no cuenta con:
+>
+> - Canal de moderación formalizado
+> - Equipo de revisión asignado
+> - Niveles de servicio comprometidos
+>
+> Esta guía describe el proceso que aplicará una vez que el canal de moderación y el equipo de revisión estén activos.
 
 ---
 
-## 📋 Antes de empezar
+## 📋 Estado actual
 
-1. Lee el [`README.md`](README.md) para entender el alcance del sistema.
-2. Revisa [`DISCLAIMER.md`](DISCLAIMER.md) para conocer los límites.
-3. Consulta [`SECURITY.md`](SECURITY.md) si encuentras una vulnerabilidad.
+No se reciben Pull Requests, issues de propuesta ni discusiones abiertas al público general.
 
-## 🎯 Áreas de contribución
+Excepciones:
+
+- Reportes de vulnerabilidades técnicas: ver [`SECURITY.md`](SECURITY.md).
+- Reportes de conducta: ver [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) para el estado del canal de moderación.
+
+## 🎯 Áreas previstas para contribución futura
 
 - Criptografía aplicada (JCS, JWS, RFC 3161, PAdES)
 - Seguridad de procesadores de pago e idempotencia
-- Interoperabilidad entre implementaciones (Python ↔ Rust/Node)
-- Privacidad y minimización de datos (LFPDPPP)
+- Interoperabilidad Python ↔ Rust/Node
+- Privacidad y minimización de datos
 - Documentación técnica y legal
 - Pruebas reproducibles
 
-## 🚫 Lo que no se acepta
+## 🚫 Lo que no se aceptará
 
 - Evidencia real o datos personales en ejemplos, tests o issues.
-- Secretos, tokens, certificados privados o claves en el repositorio.
-- Afirmaciones de cumplimiento normativo, certificación o admisibilidad judicial.
-- Cambios en el formato `manifest.payload.json` sin proponer una ADR.
+- Secretos, tokens, certificados privados o claves.
+- Afirmaciones de cumplimiento normativo, certificación o admisibilidad.
+- Cambios en `manifest.payload.json` sin ADR.
 - Cambios en la arquitectura de pagos sin actualizar la documentación.
 
-## 🔧 Flujo de trabajo
+## 🔧 Flujo previsto (cuando se abra)
 
-1. **Fork** del repositorio.
-2. Crea una rama descriptiva: `feat/`, `fix/`, `docs/`, `refactor/`.
-3. Commits siguiendo [Conventional Commits](https://www.conventionalcommits.org/) + Gitmoji.
-4. Abre un Pull Request describiendo qué, por qué y cómo se probó.
+1. Fork del repositorio.
+2. Rama descriptiva: `feat/`, `fix/`, `docs/`, `refactor/`.
+3. Commits con Conventional Commits + Gitmoji.
+4. Pull Request describiendo qué, por qué y cómo se probó.
 
 ## 📝 Convención de commits (Gitmoji)
 
@@ -55,19 +67,17 @@ Gracias por tu interés en Evidence Integrity OS.
 | ⛓️ | Hash chain / anclaje |
 | 💳 | Pagos |
 
-## 🧪 Pruebas
-
-| Tipo | Ubicación |
-|------|-----------|
-| Unitarias | `tests/unit/` |
-| Integración | `tests/integration/` |
-| Seguridad | `tests/security/` |
-| Reproducibilidad | `tests/reproducibility/` |
-
 ## 📐 Decisiones arquitectónicas
 
-Si tu cambio afecta formato, estructura o algoritmos, abre una **ADR** en `docs/adr/`.
+Cambios que afecten formato, estructura o algoritmos requerirán una **ADR** en `docs/adr/` antes de implementarse.
 
----
+## 📅 Cuándo se abrirán las contribuciones
 
-Al enviar un Pull Request aceptas que tu contribución se publique bajo la licencia MIT (código) o CC-BY-4.0 (documentación).
+Cuando estén operativos:
+
+1. Canal de moderación de conducta.
+2. Equipo de revisión de Pull Requests.
+3. Niveles de respuesta documentados.
+4. Política de aceptación publicada.
+
+Hasta entonces, esta guía se considera informativa.

@@ -1,4 +1,4 @@
-"""Smoke tests de canonicalizacion RFC 8785."""
+"""Vectores oficiales RFC 8785 y casos de error."""
 
 from __future__ import annotations
 
@@ -8,16 +8,23 @@ from src.core.errors import CanonicalizationError
 from src.core.jcs import canonicalize
 
 
-def test_sorts_keys() -> None:
+def test_rfc8785_key_sorting() -> None:
+    # Vectores derivados de RFC 8785 Appendix B.
     assert canonicalize({"b": 1, "a": 2}) == b'{"a":2,"b":1}'
+    assert canonicalize({"1": "One", "\u20ac": "Euro", "\U0001F600": "Emoji"}) == (
+        '{"1":"One","€":"Euro","😀":"Emoji"}'.encode("utf-8")
+    )
 
 
-def test_no_whitespace() -> None:
-    assert canonicalize({"a": [1, 2, 3]}) == b'{"a":[1,2,3]}'
+def test_utf16_order_differs_from_codepoint() -> None:
+    # U+E000 va despues de U+10000 en UTF-16 pero antes por code point.
+    result = canonicalize({"\uE000": "a", "\U00010000": "b"})
+    assert result == '{"𐀀":"b","":"a"}'.encode("utf-8")
 
 
-def test_unicode_preserved() -> None:
-    assert canonicalize({"a": "café"}) == '{"a":"café"}'.encode("utf-8")
+def test_string_escaping() -> None:
+    assert canonicalize({"a": "\u20ac"}) == '{"a":"€"}'.encode("utf-8")
+    assert canonicalize({"a": "\n"}) == b'{"a":"\\n"}'
 
 
 def test_rejects_float() -> None:
@@ -30,11 +37,6 @@ def test_rejects_large_int() -> None:
         canonicalize({"a": 2**60})
 
 
-def test_accepts_large_int_as_string() -> None:
-    assert canonicalize({"a": "1152921504606846976"}) == \
-        b'{"a":"1152921504606846976"}'
-
-
 def test_rejects_non_string_key() -> None:
     with pytest.raises(CanonicalizationError):
-        canonicalize({1: "a"})  # type: ignore[dict-item]
+        canonicalize({1: "a"})

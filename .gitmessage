@@ -1,0 +1,23 @@
+# <emoji> <tipo>(<scope>): <asunto en imperativo, <=72 chars>
+#
+# Cuerpo opcional explicando el QUE y el POR QUE, no el COMO.
+# Envuelve a 72 columnas.
+#
+# Emojis:
+# 🗄️  migracion SQL / esquema         ✨  nueva funcionalidad
+# 🐛  correccion de bug                🔒  seguridad / cripto
+# 📝  documentacion                    ✅  tests
+# ♻️  refactor                          🚀  release / despliegue
+# 🔧  configuracion                    💥  breaking change
+# 🩹  fix menor                        🧪  fixtures / pruebas
+# 📦  paquete .evidence                🔑  claves / KMS
+# ⛓️  hash chain / anclaje             💳  pagos
+#
+# Scope sugerido:
+# db, payments, core, crypto, evidence, api, ui, cli, docs, ops
+#
+# Ejemplo:
+#   🗄️ feat(db): crear tabla orders con estados y constraints
+#
+#   - 7 estados permitidos
+#   - CHECK en amount > 0 y currency ISO 4217
